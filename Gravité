@@ -1,0 +1,93 @@
+import pygame
+import numpy as np
+
+# Constantes
+G = 6.67430e-11  # Constante gravitationnelle (m^3 kg^-1 s^-2)
+SCALE = 1e-9  # Échelle pour afficher les positions (pour ajuster à la taille de l'écran)
+
+# Dimensions de l'écran
+WIDTH, HEIGHT = 800, 600
+
+
+# Classe représentant une planète
+class Planete:
+    def __init__(self, masse, position, vitesse, couleur, rayon):
+        self.masse = masse  # Masse en kg
+        self.position = np.array(position, dtype=float)  # Position (x, y)
+        self.vitesse = np.array(vitesse, dtype=float)  # Vitesse (vx, vy)
+        self.couleur = couleur  # Couleur pour l'affichage
+        self.rayon = rayon  # Rayon de la planète pour l'affichage
+
+    def update(self, force, dt):
+        # Accélération calculée par la force
+        acceleration = force / self.masse
+        # Mise à jour de la vitesse et de la position
+        self.vitesse += acceleration * dt
+        self.position += self.vitesse * dt
+
+    def draw(self, screen):
+        # Vérification pour éviter que la planète ne sorte de l'écran
+        x, y = int(self.position[0] * SCALE), int(self.position[1] * SCALE)
+        if 0 <= x <= WIDTH and 0 <= y <= HEIGHT:
+            pygame.draw.circle(screen, self.couleur, (x, y), self.rayon)
+
+
+# Fonction pour calculer la force gravitationnelle entre deux objets
+def force_gravitationnelle(planete1, planete2):
+    # Calcul de la distance entre les deux planètes
+    distance_vector = planete2.position - planete1.position
+    distance = np.linalg.norm(distance_vector)
+
+    # La direction de la force est dans le même sens que le vecteur de distance
+    if distance == 0:
+        return np.array([0, 0])  # Eviter la division par zéro
+
+    direction = distance_vector / distance  # Normalisation du vecteur de distance
+    # Calcul de la force gravitationnelle
+    force_magnitude = G * (planete1.masse * planete2.masse) / (distance ** 2)
+    force = force_magnitude * direction
+    return force
+
+
+# Initialisation de Pygame
+pygame.init()
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Simulation de Planètes")
+
+# Initialisation des planètes
+planete1 = Planete(masse=5.97e24, position=[0, 0], vitesse=[0, 0], couleur=(0, 0, 255), rayon=10)  # Terre
+planete2 = Planete(masse=7.35e22, position=[384400000, 0], vitesse=[0, 1022], couleur=(255, 0, 0), rayon=6)  # Lune
+
+# Simulation
+dt = 1000  # Pas de temps en secondes
+clock = pygame.time.Clock()
+
+# Boucle principale de la simulation
+running = True
+while running:
+    screen.fill((0, 0, 0))  # Remplir l'écran avec la couleur noire
+
+    # Calcul des forces gravitationnelles
+    force = force_gravitationnelle(planete1, planete2)
+
+    # Mise à jour des positions et vitesses des planètes
+    planete1.update(force, dt)
+    planete2.update(-force, dt)  # Force égale et opposée pour l'autre planète
+
+    # Dessiner les planètes
+    planete1.draw(screen)
+    planete2.draw(screen)
+
+    # Vérification et affichage de la position des planètes pour le débogage
+    print(f"Position Planète 1 : {planete1.position}")
+    print(f"Position Planète 2 : {planete2.position}")
+
+    # Gestion des événements
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+    pygame.display.flip()  # Mettre à jour l'affichage
+    clock.tick(60)  # Limiter à 60 images par seconde
+
+pygame.quit()
