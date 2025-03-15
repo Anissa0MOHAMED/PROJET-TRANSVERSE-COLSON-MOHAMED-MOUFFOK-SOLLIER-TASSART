@@ -99,27 +99,67 @@ def calculeNewton(proj, planete):
 # Boucle principale
 clock = pygame.time.Clock()
 running = True
-
+t1=0
+t2=0
+vy=1
+angle = 0
+speed=2
+timer_s=0
+timer_z=0
+timer_q=0
+timer_d=0
 while running:
     keys = pygame.key.get_pressed()
-    if keys[pygame.K_DOWN]:                     #modifie les coordonées du point bleu
-        y += 1
-    if keys[pygame.K_UP]:
-        y -= 1
+    if 70<y<1013 and 650>x>199:
+        if keys[pygame.K_UP]:
+            x += speed * math.cos(math.radians(angle))
+            y -= speed * math.sin(math.radians(angle))
+        if keys[pygame.K_DOWN]:
+            x -= speed * math.cos(math.radians(angle))
+            y += speed * math.sin(math.radians(angle))
+    else:
+        if y<=70:
+            while(y<=70):
+                y+=1
+        if y>=1013:
+            while(y>=1013):
+                y-=1
+        if x<=199:
+            while(x<=199):
+                x+=1
+        if x>=650:
+            while(x>=650):
+                x-=1
     if keys[pygame.K_RIGHT]:
-        x += 1
+        angle -= 1
     if keys[pygame.K_LEFT]:
-        x -= 1
-    if keys[pygame.K_SPACE]:
-        projectiles.append({"x": x, "y": y, "vx": vx, "vy": vy})
+        angle += 1
     if keys[pygame.K_s]:
-        vy += 0.1
-    if keys[pygame.K_z]:
-        vy -= 0.1
-    if keys[pygame.K_d]:
-        vx += 0.1
-    if keys[pygame.K_q]:
-        vx -= 0.1
+        timer_s += 1
+        vy += 0.1 * (timer_s / 100)
+    else:
+        timer_s = 0
+
+    if keys[pygame.K_z] and vy > 0:
+        timer_z += 1
+        vy -= 0.1 * (timer_z / 100)
+    else:
+        timer_z = 0
+
+    if keys[pygame.K_d] and vx < 13:
+        timer_d += 1
+        vx += 0.1 * (timer_d / 100)
+    else:
+        timer_d = 0
+
+    if keys[pygame.K_q] and vx > 0:
+        timer_q += 1
+        vx -= 0.1 * (timer_q / 100)
+    else:
+        timer_q = 0
+    if not any(keys):
+        t1=0
+        t2=0
 
 
     for event in pygame.event.get():
@@ -128,10 +168,12 @@ while running:
             running = False
             pygame.quit()
 
-        #if event.type == pygame.KEYDOWN:
-            #if event.key == pygame.K_SPACE:
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE:
                 # Création d'un nouveau projectile
-                #projectiles.append({"x": x, "y": y, "vx": vx, "vy": vy})
+                #projectile_vx = vx * math.cos(math.radians(angle))
+                #projectile_vy = vy * math.sin(math.radians(angle))
+                projectiles.append({"x": x, "y": y, "vx": vx, "vy": vy})
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_a:
                 running = False
