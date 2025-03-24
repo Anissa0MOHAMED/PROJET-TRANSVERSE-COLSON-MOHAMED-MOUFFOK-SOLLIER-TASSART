@@ -2,6 +2,8 @@ import pygame
 import   math
 import random
 
+import pygame.transform
+
 # Initialisation de Pygame
 pygame.init()
 
@@ -28,12 +30,13 @@ WHITE = (255, 255, 255)
 
 # Constantes physiques
 G = 10
-
+tir_vitesse = 10
 # vitesse initiale des balles
 vx=10
 vy=0
 vab=10
 vcd=0
+
 # Liste des planètes (coordonnées et masses)
 planetes = []
 
@@ -42,7 +45,7 @@ def distance(p1, p2):
     return math.sqrt((p1["x"] - p2["x"])**2 + (p1["y"] - p2["y"])**2)
 
 #couleur des planetes
-"""colors = [
+colors = [
     (255, 0, 0),      # Rouge
     (0, 255, 0),      # Vert
     (0, 0, 255),      # Bleu
@@ -63,18 +66,18 @@ def distance(p1, p2):
     (192, 192, 192),  # Argent
     (169, 169, 169),  # Gris foncé
     (0, 255, 127)     # Vert printemps
-]"""
+]
 pla = random.randint(2, 4) #permet de définir l'intervale de planéte généré
 for i in range(pla):
     while True:
         x = random.randint(300, 1620)
         y = random.randint(300, 780)
         masse = random.randint(250, 1500)
-        color = random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)
+        color = random.choice(colors)
         new_planet = {"x": x, "y": y, "masse": masse, "color": color}
 
         # Vérifier la distance avec toutes les planètes existantes
-        if all(distance(new_planet, p) > (p["masse"] / 10 + new_planet["masse"] / 10 + 40) for p in planetes):
+        if all(distance(new_planet, p) > (p["masse"] / 10 + new_planet["masse"] / 10) for p in planetes):
             planetes.append(new_planet)
             break  # Sort de la boucle while quand une planète valide est trouvée
 
@@ -101,118 +104,123 @@ def calculeNewton(proj, planete):
     distance = math.sqrt(distance_carre)
     return [force_magnitude * dx / distance, force_magnitude * dy / distance]
 
-
+preview_enabled = True
 # Boucle principale
 clock = pygame.time.Clock()
 running = True
 joueur_actuel = 0
-t1 = t2 = t3 = t4 = 0
-vy = vcd = 1
+vy=1
+vcd = 1
+last_move_time = pygame.time.get_ticks()
 angle = 0
-angle2 = 180
-speed = speed2 = 2
-timer_s = timer_z = timer_q = timer_d = 0
-timer_s2 = timer_z2 = timer_q2 = timer_d2 = 0
+angle2=180
+speed = 5
+show_preview = False
+
+def simulate_trajectory(x, y, angle, vx):
+    points = []
+    ship_center_x = x + 25
+    ship_center_y = y + 25
+    temp_vx = vx * math.sin(math.radians(angle) - 80)
+    temp_vy = tir_vitesse * math.cos(math.radians(angle) - 80)
+    temp_x, temp_y = ship_center_x, ship_center_y
+    for _ in range(50):
+        accel_x, accel_y = 0, 0
+        for planete in planetes:
+            force = calculeNewton({"x": temp_x, "y": temp_y}, planete)
+            accel_x += force[0]
+            accel_y += force[1]
+        temp_vx += accel_x
+        temp_vy += accel_y
+        temp_x += temp_vx
+        temp_y += temp_vy
+        for planete in planetes:
+            if distance({"x": temp_x, "y": temp_y}, planete) < planete["masse"] / 10:
+                return points  # Arrête la simulation si la trajectoire touche une planète
+        if temp_x < 0 or temp_x > WIDTH or temp_y < 0 or temp_y > HEIGHT:
+            break
+        points.append((int(temp_x), int(temp_y)))
+    return points
 
 while running:
     keys = pygame.key.get_pressed()
-    if joueur_actuel == 0:
-        if 70 < y < 1013 and 650 > x > 199:
+    moved = False
+    if joueur_actuel==0:
+        if 70<y<1013 and 650>x>199:
             if keys[pygame.K_UP]:
                 x += speed * math.cos(math.radians(angle))
                 y -= speed * math.sin(math.radians(angle))
+                moved = True
             if keys[pygame.K_DOWN]:
                 x -= speed * math.cos(math.radians(angle))
                 y += speed * math.sin(math.radians(angle))
+                moved = True
         else:
-            if y <= 70:
-                y += 1
-            if y >= 1013:
-                y -= 1
-            if x <= 199:
-                x += 1
-            if x >= 650:
-                x -= 1
+            if y<=70:
+                while(y<=70):
+                    y+=1
+                    moved = True
+            if y>=1013:
+                while(y>=1013):
+                    y-=1
+                    moved = True
+            if x<=199:
+                while(x<=199):
+                    x+=1
+                    moved = True
+            if x>=650:
+                while(x>=650):
+                    x-=1
+                    moved = True
         if keys[pygame.K_RIGHT]:
             angle -= 1
+            moved = True
         if keys[pygame.K_LEFT]:
             angle += 1
-
-        if keys[pygame.K_s]:
-            timer_s += 1
-            vy += 0.1 * (timer_s / 100)
-        else:
-            timer_s = 0
-        if keys[pygame.K_z] and vy > 0:
-            timer_z += 1
-            vy -= 0.1 * (timer_z / 100)
-        else:
-            timer_z = 0
-
-        if keys[pygame.K_d] and vx < 13:
-            timer_d += 1
-            vx += 0.1 * (timer_d / 100)
-        else:
-            timer_d = 0
-
-        if keys[pygame.K_q] and vx > 0:
-            timer_q += 1
-            vx -= 0.1 * (timer_q / 100)
-        else:
-            timer_q = 0
-
-        if not any(keys):
-            t1 = t2 = 0
-            constante = 1
-
-    elif joueur_actuel == 1:
+            moved = True
+        if moved:
+            last_move_time = pygame.time.get_ticks()
+            show_preview = False
+        elif pygame.time.get_ticks() - last_move_time > 200:
+            show_preview = True
+    elif joueur_actuel==1:
         if 70 < cd < 1013 and 1665 > ab > 1200:
             if keys[pygame.K_UP]:
-                ab += speed2 * math.cos(math.radians(angle2))
-                cd -= speed2 * math.sin(math.radians(angle2))
+                ab += speed * math.cos(math.radians(angle2))
+                cd -= speed * math.sin(math.radians(angle2))
+                moved = True
             if keys[pygame.K_DOWN]:
-                ab -= speed2 * math.cos(math.radians(angle2))
-                cd += speed2 * math.sin(math.radians(angle2))
+                ab -= speed * math.cos(math.radians(angle2))
+                cd += speed * math.sin(math.radians(angle2))
+                moved = True
         else:
-            if cd <= 70:
-                cd += 1
-            if cd >= 1013:
-                cd -= 1
-            if ab <= 1200:
-                ab += 1
-            if ab >= 1665:
-                ab -= 1
+            if cd<=70:
+                while(cd<=70):
+                    cd+=1
+                    moved = True
+            if cd>=1013:
+                while(cd>=1013):
+                    cd-=1
+                    moved = True
+            if ab<=1200:
+                while(ab<=1200):
+                    ab+=1
+                    moved = True
+            if ab>=1665:
+                while(ab>=1665):
+                    ab-=1
+                    moved = True
         if keys[pygame.K_RIGHT]:
             angle2 -= 1
+            moved = True
         if keys[pygame.K_LEFT]:
             angle2 += 1
-
-        if keys[pygame.K_s]:
-            timer_s2 += 1
-            vcd += 0.1 * (timer_s2 / 100)
-        else:
-            timer_s2 = 0
-        if keys[pygame.K_z] and vy > 0:
-            timer_z2 += 1
-            vcd -= 0.1 * (timer_z2 / 100)
-        else:
-            timer_z2 = 0
-
-        if keys[pygame.K_d] and vx < 13:
-            timer_d2 += 1
-            vab += 0.1 * (timer_d2 / 100)
-        else:
-            timer_d2 = 0
-
-        if keys[pygame.K_q] and vx > 0:
-            timer_q2 += 1
-            vab -= 0.1 * (timer_q2 / 100)
-        else:
-            timer_q2 = 0
-
-        if not any(keys):
-            t3 = t4 = 0
-            constante = 0
+            moved = True
+        if moved:
+            last_move_time = pygame.time.get_ticks()
+            show_preview = False
+        elif pygame.time.get_ticks() - last_move_time > 200:
+            show_preview = True
 
     for event in pygame.event.get():
 
@@ -222,19 +230,31 @@ while running:
 
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
-                if joueur_actuel == 0:
-                    projectiles.append({"x": x, "y": y, "vx": vx, "vy": vy})
-                    joueur_actuel = 1
-                elif joueur_actuel == 1:
-                    projectiles.append({"x": ab, "y": cd, "vx": -vab, "vy": vcd})
-                    joueur_actuel = 0
-        if event.type == pygame.KEYDOWN:
+                if joueur_actuel==0:
+                    vX = vx * math.sin(math.radians(angle) - 80)
+                    vy = tir_vitesse * math.cos(math.radians(angle) - 80)
+                    projectiles.append({"x": x+25, "y": y+25, "vx": vX, "vy": vy})
+                    joueur_actuel=1
+                elif joueur_actuel==1:
+                    vab = vx * math.sin(math.radians(angle2) - 80)
+                    vcd = tir_vitesse * math.cos(math.radians(angle2) - 80)
+                    projectiles.append({"x": ab+25, "y": cd+25, "vx": vab, "vy": vcd})
+                    joueur_actuel=0
             if event.key == pygame.K_a:
                 running = False
                 pygame.quit()
-
-
-
+            if event.key == pygame.K_q:
+                angle+=1
+            if event.key == pygame.K_d:
+                angle-=1
+            if event.key == pygame.K_e:
+                preview_enabled = not preview_enabled
+            if event.key == pygame.K_s and vx > 5:
+                vx -= 1
+            if event.key == pygame.K_z and vx <15:
+                vx += 1
+            if event.key == pygame.K_z and vx < 15:
+                vx += 1
 
     # Effacer l'écran
     screen.fill(DARK_BLUE)  # Fond bleu foncé (galaxie)
@@ -253,13 +273,12 @@ while running:
     new_rect = rotated_image.get_rect(center=object_image.get_rect(topleft=(x, y)).center)
     screen.blit(rotated_image, new_rect.topleft)
 
-
     rotated_image = pygame.transform.rotate(object_image, angle2)
     new_rect = rotated_image.get_rect(center=object_image.get_rect(topleft=(ab, cd)).center)
     screen.blit(rotated_image, new_rect.topleft)
 
 
-    # Mettre à jour et dessiner les projectiles
+# Mettre à jour et dessiner les projectiles
     for proj in projectiles:
         accel_x, accel_y = 0, 0
         collide=0
@@ -281,12 +300,25 @@ while running:
         proj["y"] += proj["vy"]
 
         # Dessiner le projectile
-        pygame.draw.circle(screen, GREEN, ((proj["x"]+36), (proj["y"]+20)), 10)
+        pygame.draw.circle(screen, GREEN, ((proj["x"]), (proj["y"])), 5)
 
     #affiche puissance du tir
-    txt = big_font.render(('Vx: ' + str(round(vx, 2)) + 'Vy: ' + str(round(vy, 2))), True, WHITE)
-    screen.blit(txt, (200, 75))
-
+    if joueur_actuel==0:
+        txt = big_font.render(f'Vitesse: {round(vx, 2)} | Angle: {round(angle,1)%360}°', True, WHITE)
+        screen.blit(txt, (200, 75))
+    elif joueur_actuel==1:
+        txt = big_font.render(f'Vitesse: {round(vx, 2)} | Angle: {round(angle2-180,1)%360}°', True, WHITE)
+        screen.blit(txt, (1350, 75))
+    if joueur_actuel==0:
+        if show_preview and preview_enabled:
+            trajectory = simulate_trajectory(x, y, angle, vx)
+            for point in trajectory:
+                pygame.draw.circle(screen, WHITE, point, 2)
+    elif joueur_actuel==1:
+        if show_preview and preview_enabled:
+            trajectory = simulate_trajectory(ab, cd, angle2, vx)
+            for point in trajectory:
+                pygame.draw.circle(screen, WHITE, point, 2)
 
     # Mettre à jour l'affichage
     pygame.display.flip()
