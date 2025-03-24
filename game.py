@@ -2,6 +2,8 @@ import pygame
 import   math
 import random
 
+import pygame.transform
+
 # Initialisation de Pygame
 pygame.init()
 
@@ -28,7 +30,7 @@ WHITE = (255, 255, 255)
 
 # Constantes physiques
 G = 10
-
+tir_vitesse = 10
 # vitesse initiale des balles
 vx=10
 vy=0
@@ -73,7 +75,7 @@ for i in range(pla):
         new_planet = {"x": x, "y": y, "masse": masse, "color": color}
 
         # Vérifier la distance avec toutes les planètes existantes
-        if all(distance(new_planet, p) > (p["masse"] / 10 + new_planet["masse"] / 10 + 40) for p in planetes):
+        if all(distance(new_planet, p) > (p["masse"] / 10 + new_planet["masse"] / 10) for p in planetes):
             planetes.append(new_planet)
             break  # Sort de la boucle while quand une planète valide est trouvée
 
@@ -83,6 +85,9 @@ projectiles = []
 #coordonnées d'apparition du point bleu
 x=200
 y=200
+
+object_image = pygame.image.load('vaisseau.png')
+object_image = pygame.transform.scale(object_image, (50, 50))
 
 # Calcul des forces gravitationnelles
 def calculeNewton(proj, planete):
@@ -95,32 +100,82 @@ def calculeNewton(proj, planete):
     distance = math.sqrt(distance_carre)
     return [force_magnitude * dx / distance, force_magnitude * dy / distance]
 
-
+preview_enabled = True
 # Boucle principale
 clock = pygame.time.Clock()
 running = True
+vy=1
+last_move_time = pygame.time.get_ticks()
+angle = 0
+speed = 5
+show_preview = False
+
+def simulate_trajectory(x, y, angle, vx):
+    points = []
+    ship_center_x = x + 25
+    ship_center_y = y + 25
+    temp_vx = vx * math.sin(math.radians(angle) - 80)
+    temp_vy = tir_vitesse * math.cos(math.radians(angle) - 80)
+    temp_x, temp_y = ship_center_x, ship_center_y
+    for _ in range(50):
+        accel_x, accel_y = 0, 0
+        for planete in planetes:
+            force = calculeNewton({"x": temp_x, "y": temp_y}, planete)
+            accel_x += force[0]
+            accel_y += force[1]
+        temp_vx += accel_x
+        temp_vy += accel_y
+        temp_x += temp_vx
+        temp_y += temp_vy
+        for planete in planetes:
+            if distance({"x": temp_x, "y": temp_y}, planete) < planete["masse"] / 10:
+                return points  # Arrête la simulation si la trajectoire touche une planète
+        if temp_x < 0 or temp_x > WIDTH or temp_y < 0 or temp_y > HEIGHT:
+            break
+        points.append((int(temp_x), int(temp_y)))
+    return points
 
 while running:
     keys = pygame.key.get_pressed()
-    if keys[pygame.K_DOWN]:                     #modifie les coordonées du point bleu
-        y += 1
-    if keys[pygame.K_UP]:
-        y -= 1
-    if keys[pygame.K_RIGHT]:
-        x += 1
-    if keys[pygame.K_LEFT]:
-        x -= 1
-    if keys[pygame.K_SPACE]:
-        projectiles.append({"x": x, "y": y, "vx": vx, "vy": vy})
-    if keys[pygame.K_s]:
-        vy += 0.1
-    if keys[pygame.K_z]:
-        vy -= 0.1
-    if keys[pygame.K_d]:
-        vx += 0.1
-    if keys[pygame.K_q]:
-        vx -= 0.1
+    moved = False
 
+    if 70<y<1013 and 650>x>199:
+        if keys[pygame.K_UP]:
+            x += speed * math.cos(math.radians(angle))
+            y -= speed * math.sin(math.radians(angle))
+            moved = True
+        if keys[pygame.K_DOWN]:
+            x -= speed * math.cos(math.radians(angle))
+            y += speed * math.sin(math.radians(angle))
+            moved = True
+    else:
+        if y<=70:
+            while(y<=70):
+                y+=1
+                moved = True
+        if y>=1013:
+            while(y>=1013):
+                y-=1
+                moved = True
+        if x<=199:
+            while(x<=199):
+                x+=1
+                moved = True
+        if x>=650:
+            while(x>=650):
+                x-=1
+                moved = True
+    if keys[pygame.K_RIGHT]:
+        angle -= 1
+        moved = True
+    if keys[pygame.K_LEFT]:
+        angle += 1
+        moved = True
+    if moved:
+        last_move_time = pygame.time.get_ticks()
+        show_preview = False
+    elif pygame.time.get_ticks() - last_move_time > 200:
+        show_preview = True
 
     for event in pygame.event.get():
 
@@ -128,17 +183,26 @@ while running:
             running = False
             pygame.quit()
 
-        #if event.type == pygame.KEYDOWN:
-            #if event.key == pygame.K_SPACE:
-                # Création d'un nouveau projectile
-                #projectiles.append({"x": x, "y": y, "vx": vx, "vy": vy})
         if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE:
+                vX = vx * math.sin(math.radians(angle) - 80)
+                vy = tir_vitesse * math.cos(math.radians(angle) - 80)
+                projectiles.append({"x": x+25, "y": y+25, "vx": vX, "vy": vy})
             if event.key == pygame.K_a:
                 running = False
                 pygame.quit()
-
-
-
+            if event.key == pygame.K_q:
+                angle+=1
+            if event.key == pygame.K_d:
+                angle-=1
+            if event.key == pygame.K_e:
+                preview_enabled = not preview_enabled
+            if event.key == pygame.K_s and vx > 5:
+                vx -= 1
+            if event.key == pygame.K_z and vx <15:
+                vx += 1
+            if event.key == pygame.K_z and vx < 15:
+                vx += 1
 
     # Effacer l'écran
     screen.fill(DARK_BLUE)  # Fond bleu foncé (galaxie)
@@ -153,7 +217,10 @@ while running:
         pygame.draw.circle(screen, planete["color"], (planete["x"], planete["y"]), planete["masse"]/10)
 
     # Dessiner la position initiale du projectile en bleu
-    pygame.draw.circle(screen, BLUE, (x, y), 10)
+    rotated_image = pygame.transform.rotate(object_image, angle)
+    new_rect = rotated_image.get_rect(center=object_image.get_rect(topleft=(x, y)).center)
+    screen.blit(rotated_image, new_rect.topleft)
+
 
     # Mettre à jour et dessiner les projectiles
     for proj in projectiles:
@@ -177,12 +244,16 @@ while running:
         proj["y"] += proj["vy"]
 
         # Dessiner le projectile
-        pygame.draw.circle(screen, GREEN, ((proj["x"]), (proj["y"])), 10)
+        pygame.draw.circle(screen, GREEN, ((proj["x"]), (proj["y"])), 5)
 
     #affiche puissance du tir
-    txt = big_font.render(('Vx: ' + str(round(vx, 2)) + 'Vy: ' + str(round(vy, 2))), True, WHITE)
+    txt = big_font.render(f'Vitesse: {round(vx, 2)} | Angle: {round(angle,1)%360}°', True, WHITE)
     screen.blit(txt, (200, 75))
 
+    if show_preview and preview_enabled:
+        trajectory = simulate_trajectory(x, y, angle, vx)
+        for point in trajectory:
+            pygame.draw.circle(screen, WHITE, point, 2)
 
     # Mettre à jour l'affichage
     pygame.display.flip()
