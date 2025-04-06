@@ -1,0 +1,125 @@
+import pygame
+import math
+
+# Initialisation de Pygame
+
+pygame.init()
+
+# Configuration de la fenêtre
+
+WIDTH, HEIGHT = 1600, 800
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Moteur Physique de MERDE")
+
+# Couleurs
+
+BLACK = (0, 0, 0)
+YELLOW = (0, 255, 0)
+BLUE = (0, 0, 255)
+GREEN = (255, 0, 0)
+A = (255,255,0)
+B = (0,255,255)
+C = (255,0,255)
+
+# Constantes physiques
+
+G = 10 # Constante gravitationnelle
+
+Masse_projectile = 1
+Masse_Planete1 = 1000
+#Masse_Planete2 = 500
+Masse_Planete3 = 1000
+Masse_Planete4 = 1000
+
+# Position des planètes et du projectile
+
+Coord_X_Mis, Coord_Y_Mis = 0 , 200
+Coord_X_P1, Coord_Y_P1 = 800, 600
+#Coord_X_P2, Coord_Y_P2 = 400, 600
+Coord_X_P3, Coord_Y_P3 = 1000, 200
+Coord_X_P4, Coord_Y_P4 = 600, 200
+
+# Vitesse initiale du projectile
+
+Vitesse_X, Vitesse_Y = 1.5, 1.5
+
+# Calcul des forces gravitationnelles
+
+def calculeNewton(Coord1, Coord2, Masse):
+    dx = Coord2[0] - Coord1[0]
+    dy = Coord2[1] - Coord1[1]
+    distance_carre = dx**2 + dy**2
+    if distance_carre < 1000:  # Évite des accélérations trop grandes si trop proche
+        return [0, 0]
+    force_magnitude = G * Masse / distance_carre
+    distance = math.sqrt(distance_carre)
+    return [force_magnitude * dx / distance, force_magnitude * dy / distance]
+
+# Boucle principale
+
+disparu = True
+clock = pygame.time.Clock()
+running = True
+
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+            pygame.quit()
+
+#while disparu :
+
+    # Effacer l'écran
+
+    screen.fill(BLACK)
+
+    # Dessiner les corps fixes
+
+    pygame.draw.circle(screen, YELLOW, (Coord_X_P1, Coord_Y_P1), 50)
+    #pygame.draw.circle(screen, BLUE, (Coord_X_P2, Coord_Y_P2), 50)
+    pygame.draw.circle(screen, A, (Coord_X_P3, Coord_Y_P3), 50)
+    pygame.draw.circle(screen, B, (Coord_X_P4, Coord_Y_P4), 50)
+
+    # Calcul des accélérations
+
+    force1 = calculeNewton([Coord_X_Mis, Coord_Y_Mis], [Coord_X_P1, Coord_Y_P1], Masse_Planete1)
+    #force2 = calculeNewton([Coord_X_Mis, Coord_Y_Mis], [Coord_X_P2, Coord_Y_P2], Masse_Planete2)
+    force3 = calculeNewton([Coord_X_Mis, Coord_Y_Mis], [Coord_X_P3, Coord_Y_P3], Masse_Planete3)
+    force4 = calculeNewton([Coord_X_Mis, Coord_Y_Mis], [Coord_X_P4, Coord_Y_P4], Masse_Planete4)
+
+    accel_X = (force1[0] + force4[0] + force3[0] ) / Masse_projectile
+    accel_Y = (force1[1] + force4[1] + force3[1] ) / Masse_projectile
+
+    # Mise à jour des vitesses et positions
+
+    Vitesse_X = Vitesse_X + accel_X
+    Vitesse_Y = Vitesse_Y + accel_Y
+
+    if Vitesse_Y >= 20:
+        Vitesse_Y = 20
+
+    if Vitesse_Y <= -20:
+        Vitesse_Y = -20
+
+    if Vitesse_X >= 20 :
+        Vitesse_X = 20
+
+    if Vitesse_X <= -20 :
+        Vitesse_X = -20
+
+    Coord_X_Mis += Vitesse_X
+    Coord_Y_Mis += Vitesse_Y
+
+    #if ((Coord_X_P4 - 100 <= Coord_X_Mis <= Coord_X_P4 + 100) and (Coord_Y_P4 - 100 <= Coord_Y_Mis <= Coord_Y_P4 + 100)) or ((Coord_X_P1 - 100 <= Coord_X_Mis <= Coord_X_P1 + 100) and (Coord_Y_P1 - 100 <= Coord_Y_Mis <= Coord_Y_P1 + 100)) or ((Coord_X_P3 - 100 <= Coord_X_Mis <= Coord_X_P3 + 100) and (Coord_Y_P3 - 100 <= Coord_Y_Mis <= Coord_Y_P3 + 100)) :
+        #Coord_Y_Mis,Coord_X_Mis = -10,-10
+        #disparu = False
+
+    # Dessiner le projectile
+
+    pygame.draw.circle(screen, GREEN, (int(Coord_X_Mis), int(Coord_Y_Mis)), 10)
+    print(Coord_X_Mis,Coord_Y_Mis,Vitesse_Y,Vitesse_Y)
+
+    # Mettre à jour l'affichage
+
+    pygame.display.flip()
+    clock.tick(120)
