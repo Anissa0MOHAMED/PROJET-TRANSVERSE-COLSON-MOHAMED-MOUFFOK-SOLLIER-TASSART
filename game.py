@@ -39,8 +39,8 @@ vy=0
 vab=10
 vcd=0
 # score initiale
-score1=0
-score2=0
+score1=5
+score2=5
 # Liste des planètes (coordonnées et masses)
 planetes = []
 
@@ -76,9 +76,10 @@ for i in range(pla):
     while True:
         x = random.randint(1013, 1200)
         y = random.randint(300, 780)
+        pv = random.randint(3,5)
         masse = random.randint(250, 1500)
         color = random.choice(colors)
-        new_planet = {"x": x, "y": y, "masse": masse, "color": color}
+        new_planet = {"x": x, "y": y, "masse": masse, "color": color,'pv':pv}
 
         # Vérifier la distance avec toutes les planètes existantes
         if all(distance(new_planet, p) > ((p["masse"] / 10 + new_planet["masse"] / 10)+30) for p in planetes):
@@ -367,6 +368,9 @@ while running:
             accel_y += force[1]
             collided = (math.sqrt((proj["x"] - planete["x"]) ** 2 + (proj["y"] - planete["y"]) ** 2) <= planete["masse"]/10)  #permet de calculer pour chaque planete les colisions avec les balles
             if  collided and collide==0:
+                planete['pv']-=1
+                if planete['pv'] <= 0 :
+                    planetes.remove(planete)
                 collide+=1
                 pygame.mixer.Sound.play(explosion_sound)
                 explosions.append({"x": proj["x"], "y": proj["y"], "frame": 0})
@@ -394,12 +398,16 @@ while running:
             if proj["color"] == RED and collision_vaisseau(proj, x, y):
                 pygame.mixer.Sound.play(explosion_sound)  # Explosion du vaisseau bleu
                 explosions.append({"x": proj["x"], "y": proj["y"], "frame": 0})
-                score1+=1
+                score1-=1
+                if score1 == 0 :
+                    pygame.quit()
                 projectiles.remove(proj)
             elif proj["color"] == BLUE and collision_vaisseau(proj, ab, cd):
                 pygame.mixer.Sound.play(explosion_sound)  # Explosion du vaisseau rouge
                 explosions.append({"x": proj["x"], "y": proj["y"], "frame": 0})
-                score2+=1
+                score2-=1
+                if score1 == 0 :
+                    pygame.quit()
                 projectiles.remove(proj)
 
 
@@ -429,15 +437,6 @@ while running:
             trajectory = simulate_trajectory(ab, cd, angle2, vx)
             for point in trajectory:
                 pygame.draw.circle(screen, WHITE, point, 2)
-
-    if score1 < 3:  # Vérifie si le vaisseau bleu est encore en jeu
-        rotated_image = pygame.transform.rotate(object_image, angle)
-        new_rect = rotated_image.get_rect(center=object_image.get_rect(topleft=(x, y)).center)
-        screen.blit(rotated_image, new_rect.topleft)
-    elif score2 < 3:  # Vérifie si le vaisseau rouge est encore en jeu
-        rotated_image = pygame.transform.rotate(object_image, angle2)
-        new_rect = rotated_image.get_rect(center=object_image.get_rect(topleft=(ab, cd)).center)
-        screen.blit(rotated_image, new_rect.topleft)
 
 
     txt2 = big_font.render(f'{score1} | {score2}', True, WHITE)
