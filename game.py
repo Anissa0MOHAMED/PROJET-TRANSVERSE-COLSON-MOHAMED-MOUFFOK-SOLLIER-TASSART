@@ -406,7 +406,7 @@ while running:
                 pygame.mixer.Sound.play(explosion_sound)  # Explosion du vaisseau rouge
                 explosions.append({"x": proj["x"], "y": proj["y"], "frame": 0})
                 score2-=1
-                if score1 == 0 :
+                if score2 == 0 :
                     pygame.quit()
                 projectiles.remove(proj)
 
