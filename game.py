@@ -41,6 +41,10 @@ vcd=0
 # score initiale
 score1=0
 score2=0
+
+#carburant pour les vaisseaux
+carburant0=100
+carburant1=100
 # Liste des planètes (coordonnées et masses)
 planetes = []
 
@@ -165,89 +169,96 @@ while running:
     moved = False
     if not projectiles:
         if joueur_actuel==0:
-            if 70<y<1013 and 650>x>199:
-                if keys[pygame.K_UP]:
-                    if keys[pygame.K_r]:
-                        x += speed * math.cos(math.radians(angle)) * 4
-                        y -= speed * math.sin(math.radians(angle)) * 4
-                    else:
-                        x += speed * math.cos(math.radians(angle))
-                        y -= speed * math.sin(math.radians(angle))
+            if carburant0 >0:
+                if 70<y<1013 and 650>x>199:
+                    if keys[pygame.K_UP]:
+                        if keys[pygame.K_r]:
+                            x += speed * math.cos(math.radians(angle)) * 2
+                            y -= speed * math.sin(math.radians(angle)) * 2
+                            carburant0-=0.5
+
+                        else:
+                            x += speed * math.cos(math.radians(angle))
+                            y -= speed * math.sin(math.radians(angle))
+                            carburant0-=0.1
+                        moved = True
+                    if keys[pygame.K_DOWN]:
+                        x -= speed * math.cos(math.radians(angle))
+                        y += speed * math.sin(math.radians(angle))
+                        moved = True
+                else:
+                    if y<=70:
+                        while(y<=70):
+                            y+=1
+                            moved = True
+                    if y>=1013:
+                        while(y>=1013):
+                            y-=1
+                            moved = True
+                    if x<=199:
+                        while(x<=199):
+                            x+=1
+                            moved = True
+                    if x>=650:
+                        while(x>=650):
+                            x-=1
+                            moved = True
+                if keys[pygame.K_RIGHT]:
+                    angle -= 1
                     moved = True
-                if keys[pygame.K_DOWN]:
-                    x -= speed * math.cos(math.radians(angle))
-                    y += speed * math.sin(math.radians(angle))
+                if keys[pygame.K_LEFT]:
+                    angle += 1
                     moved = True
-            else:
-                if y<=70:
-                    while(y<=70):
-                        y+=1
-                        moved = True
-                if y>=1013:
-                    while(y>=1013):
-                        y-=1
-                        moved = True
-                if x<=199:
-                    while(x<=199):
-                        x+=1
-                        moved = True
-                if x>=650:
-                    while(x>=650):
-                        x-=1
-                        moved = True
-            if keys[pygame.K_RIGHT]:
-                angle -= 1
-                moved = True
-            if keys[pygame.K_LEFT]:
-                angle += 1
-                moved = True
-            if moved:
-                last_move_time = pygame.time.get_ticks()
-                show_preview = False
-            elif pygame.time.get_ticks() - last_move_time > 200:
-                show_preview = True
+                if moved:
+                    last_move_time = pygame.time.get_ticks()
+                    show_preview = False
+                elif pygame.time.get_ticks() - last_move_time > 200:
+                    show_preview = True
         elif joueur_actuel==1:
-            if 70 < cd < 1013 and 1665 > ab > 1200:
-                if keys[pygame.K_UP]:
-                    if keys[pygame.K_r]:
-                        ab += speed * math.cos(math.radians(angle2))*4
-                        cd -= speed * math.sin(math.radians(angle2))*4
-                    else:
-                        ab += speed * math.cos(math.radians(angle2))
-                        cd -= speed * math.sin(math.radians(angle2))
+            if carburant1 >0:
+                if 70 < cd < 1013 and 1665 > ab > 1200:
+                    if keys[pygame.K_UP]:
+                        if keys[pygame.K_r]:
+                            ab += speed * math.cos(math.radians(angle2))*2
+                            cd -= speed * math.sin(math.radians(angle2))*2
+                            carburant1 -=0.5
+                        else:
+                            ab += speed * math.cos(math.radians(angle2))
+                            cd -= speed * math.sin(math.radians(angle2))
+                            carburant1 -=0.1
+                        moved = True
+                    if keys[pygame.K_DOWN]:
+                        ab -= speed * math.cos(math.radians(angle2))
+                        cd += speed * math.sin(math.radians(angle2))
+                        moved = True
+                else:
+                    if cd<=70:
+                        while(cd<=70):
+                            cd+=1
+                            moved = True
+                    if cd>=1013:
+                        while(cd>=1013):
+                            cd-=1
+                            moved = True
+                    if ab<=1200:
+                        while(ab<=1200):
+                            ab+=1
+                            moved = True
+                    if ab>=1665:
+                        while(ab>=1665):
+                            ab-=1
+                            moved = True
+                if keys[pygame.K_RIGHT]:
+                    angle2 -= 1
                     moved = True
-                if keys[pygame.K_DOWN]:
-                    ab -= speed * math.cos(math.radians(angle2))
-                    cd += speed * math.sin(math.radians(angle2))
+                if keys[pygame.K_LEFT]:
+                    angle2 += 1
                     moved = True
-            else:
-                if cd<=70:
-                    while(cd<=70):
-                        cd+=1
-                        moved = True
-                if cd>=1013:
-                    while(cd>=1013):
-                        cd-=1
-                        moved = True
-                if ab<=1200:
-                    while(ab<=1200):
-                        ab+=1
-                        moved = True
-                if ab>=1665:
-                    while(ab>=1665):
-                        ab-=1
-                        moved = True
-            if keys[pygame.K_RIGHT]:
-                angle2 -= 1
-                moved = True
-            if keys[pygame.K_LEFT]:
-                angle2 += 1
-                moved = True
-            if moved:
-                last_move_time = pygame.time.get_ticks()
-                show_preview = False
-            elif pygame.time.get_ticks() - last_move_time > 200:
-                show_preview = True
+                if moved:
+                    last_move_time = pygame.time.get_ticks()
+                    show_preview = False
+                elif pygame.time.get_ticks() - last_move_time > 200:
+                    show_preview = True
 
     for event in pygame.event.get():
 
@@ -403,6 +414,22 @@ while running:
                 projectiles.remove(proj)
 
 
+    def dessiner_jauge_carburant(screen, x, y, largeur, hauteur, carburant):
+        # Calculer la largeur de la jauge en fonction du carburant restant
+        carburant_largeur = (carburant / 100) * largeur
+        # Dessiner le fond de la jauge (rouge)
+        pygame.draw.rect(screen, RED, (x, y, largeur, hauteur))
+        # Dessiner la jauge de carburant (bleue)
+        pygame.draw.rect(screen, BLUE, (x, y, carburant_largeur, hauteur))
+        # Dessiner la bordure de la jauge (noir)
+        pygame.draw.rect(screen, BLACK, (x, y, largeur, hauteur), 2)
+
+    dessiner_jauge_carburant(screen, 200, 50, 200, 30, carburant0)
+    dessiner_jauge_carburant(screen, 1500, 50, 200, 30, carburant1)
+
+
+
+
         # Affichage des explosions
     for explosion in explosions:
         frame_index = explosion["frame"] // 5
@@ -418,7 +445,7 @@ while running:
         screen.blit(txt, (200, 75))
     elif joueur_actuel==1:
         txt = big_font.render(f'Vitesse: {round(vx, 2)} | Angle: {round(angle2-180,1)%360}°', True, WHITE)
-        screen.blit(txt, (1350, 75))
+        screen.blit(txt, (1380, 75))
     if joueur_actuel==0:
         if show_preview and preview_enabled:
             trajectory = simulate_trajectory(x, y, angle, vx)
