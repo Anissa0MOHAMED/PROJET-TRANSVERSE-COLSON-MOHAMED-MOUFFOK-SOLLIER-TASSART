@@ -1,3 +1,4 @@
+from asyncio import wait_for
 from os import remove
 
 import pygame
@@ -102,7 +103,10 @@ missile_rouge = pygame.transform.scale(missile_rouge, (44, 44))
 
 explosion_frames = [pygame.image.load(f'explosion/frame_{i}.png') for i in range(6)]
 explosion_sound = pygame.mixer.Sound("1917.mp3")
+explosion_sound.set_volume(0.2)  # Réglez le volume à 20% du volume maximal
 missile_sound = pygame.mixer.Sound("missile.mp3")
+musique = pygame.mixer.Sound("04. Hacking Malfunction (Battle).mp3")
+musique.play(-1)
 # Calcul des forces gravitationnelles
 def calculeNewton(proj, planete):
     dx = planete["x"] - proj["x"]
@@ -159,90 +163,91 @@ def simulate_trajectory(x, y, angle, vx):
 while running:
     keys = pygame.key.get_pressed()
     moved = False
-    if joueur_actuel==0:
-        if 70<y<1013 and 650>x>199:
-            if keys[pygame.K_UP]:
-                if keys[pygame.K_r]:
-                    x += speed * math.cos(math.radians(angle)) * 4
-                    y -= speed * math.sin(math.radians(angle)) * 4
-                else:
-                    x += speed * math.cos(math.radians(angle))
-                    y -= speed * math.sin(math.radians(angle))
+    if not projectiles:
+        if joueur_actuel==0:
+            if 70<y<1013 and 650>x>199:
+                if keys[pygame.K_UP]:
+                    if keys[pygame.K_r]:
+                        x += speed * math.cos(math.radians(angle)) * 4
+                        y -= speed * math.sin(math.radians(angle)) * 4
+                    else:
+                        x += speed * math.cos(math.radians(angle))
+                        y -= speed * math.sin(math.radians(angle))
+                    moved = True
+                if keys[pygame.K_DOWN]:
+                    x -= speed * math.cos(math.radians(angle))
+                    y += speed * math.sin(math.radians(angle))
+                    moved = True
+            else:
+                if y<=70:
+                    while(y<=70):
+                        y+=1
+                        moved = True
+                if y>=1013:
+                    while(y>=1013):
+                        y-=1
+                        moved = True
+                if x<=199:
+                    while(x<=199):
+                        x+=1
+                        moved = True
+                if x>=650:
+                    while(x>=650):
+                        x-=1
+                        moved = True
+            if keys[pygame.K_RIGHT]:
+                angle -= 1
                 moved = True
-            if keys[pygame.K_DOWN]:
-                x -= speed * math.cos(math.radians(angle))
-                y += speed * math.sin(math.radians(angle))
+            if keys[pygame.K_LEFT]:
+                angle += 1
                 moved = True
-        else:
-            if y<=70:
-                while(y<=70):
-                    y+=1
+            if moved:
+                last_move_time = pygame.time.get_ticks()
+                show_preview = False
+            elif pygame.time.get_ticks() - last_move_time > 200:
+                show_preview = True
+        elif joueur_actuel==1:
+            if 70 < cd < 1013 and 1665 > ab > 1200:
+                if keys[pygame.K_UP]:
+                    if keys[pygame.K_r]:
+                        ab += speed * math.cos(math.radians(angle2))*4
+                        cd -= speed * math.sin(math.radians(angle2))*4
+                    else:
+                        ab += speed * math.cos(math.radians(angle2))
+                        cd -= speed * math.sin(math.radians(angle2))
                     moved = True
-            if y>=1013:
-                while(y>=1013):
-                    y-=1
+                if keys[pygame.K_DOWN]:
+                    ab -= speed * math.cos(math.radians(angle2))
+                    cd += speed * math.sin(math.radians(angle2))
                     moved = True
-            if x<=199:
-                while(x<=199):
-                    x+=1
-                    moved = True
-            if x>=650:
-                while(x>=650):
-                    x-=1
-                    moved = True
-        if keys[pygame.K_RIGHT]:
-            angle -= 1
-            moved = True
-        if keys[pygame.K_LEFT]:
-            angle += 1
-            moved = True
-        if moved:
-            last_move_time = pygame.time.get_ticks()
-            show_preview = False
-        elif pygame.time.get_ticks() - last_move_time > 200:
-            show_preview = True
-    elif joueur_actuel==1:
-        if 70 < cd < 1013 and 1665 > ab > 1200:
-            if keys[pygame.K_UP]:
-                if keys[pygame.K_r]:
-                    ab += speed * math.cos(math.radians(angle2))*4
-                    cd -= speed * math.sin(math.radians(angle2))*4
-                else:
-                    ab += speed * math.cos(math.radians(angle2))
-                    cd -= speed * math.sin(math.radians(angle2))
+            else:
+                if cd<=70:
+                    while(cd<=70):
+                        cd+=1
+                        moved = True
+                if cd>=1013:
+                    while(cd>=1013):
+                        cd-=1
+                        moved = True
+                if ab<=1200:
+                    while(ab<=1200):
+                        ab+=1
+                        moved = True
+                if ab>=1665:
+                    while(ab>=1665):
+                        ab-=1
+                        moved = True
+            if keys[pygame.K_RIGHT]:
+                angle2 -= 1
                 moved = True
-            if keys[pygame.K_DOWN]:
-                ab -= speed * math.cos(math.radians(angle2))
-                cd += speed * math.sin(math.radians(angle2))
+            if keys[pygame.K_LEFT]:
+                angle2 += 1
                 moved = True
-        else:
-            if cd<=70:
-                while(cd<=70):
-                    cd+=1
-                    moved = True
-            if cd>=1013:
-                while(cd>=1013):
-                    cd-=1
-                    moved = True
-            if ab<=1200:
-                while(ab<=1200):
-                    ab+=1
-                    moved = True
-            if ab>=1665:
-                while(ab>=1665):
-                    ab-=1
-                    moved = True
-        if keys[pygame.K_RIGHT]:
-            angle2 -= 1
-            moved = True
-        if keys[pygame.K_LEFT]:
-            angle2 += 1
-            moved = True
-        if moved:
-            last_move_time = pygame.time.get_ticks()
-            show_preview = False
-        elif pygame.time.get_ticks() - last_move_time > 200:
-            show_preview = True
+            if moved:
+                last_move_time = pygame.time.get_ticks()
+                show_preview = False
+            elif pygame.time.get_ticks() - last_move_time > 200:
+                show_preview = True
 
     for event in pygame.event.get():
 
@@ -253,7 +258,7 @@ while running:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_t:
                 planetes.clear()  # Supprime toutes les anciennes planètes
-                pla = random.randint(4, 6)  # Nombre de nouvelles planètes
+                pla = random.randint(4, 10)  # Nombre de nouvelles planètes
                 for i in range(pla):
                     while True:
                         px = random.randint(320, 1660)
@@ -276,18 +281,18 @@ while running:
                     projectiles.append({"x": x+25, "y": y+25, "vx": vX, "vy": vy, "color": BLUE})
                     pygame.mixer.Sound.play(missile_sound)
                     if keys[pygame.K_f]:
-                        projectiles.append({"x": x + 25, "y": y + 25, "vx": vX, "vy": vy + 1, "color": BLUE})
+                        projectiles.append({"x": x + 25, "y": y + 25, "vx": vX, "vy": vy + 0.5, "color": BLUE})
                         pygame.mixer.Sound.play(missile_sound)
-                        projectiles.append({"x": x + 25, "y": y + 25, "vx": vX, "vy": vy - 1, "color": BLUE})
+                        projectiles.append({"x": x + 25, "y": y + 25, "vx": vX, "vy": vy - 0.5, "color": BLUE})
                         pygame.mixer.Sound.play(missile_sound)
                     if keys[pygame.K_g]:
+                        projectiles.append({"x": x + 25, "y": y + 25, "vx": vX, "vy": vy + 0.5, "color": BLUE})
+                        pygame.mixer.Sound.play(missile_sound)
+                        projectiles.append({"x": x + 25, "y": y + 25, "vx": vX, "vy": vy - 0.5, "color": BLUE})
+                        pygame.mixer.Sound.play(missile_sound)
                         projectiles.append({"x": x + 25, "y": y + 25, "vx": vX, "vy": vy + 1, "color": BLUE})
                         pygame.mixer.Sound.play(missile_sound)
                         projectiles.append({"x": x + 25, "y": y + 25, "vx": vX, "vy": vy - 1, "color": BLUE})
-                        pygame.mixer.Sound.play(missile_sound)
-                        projectiles.append({"x": x + 25, "y": y + 25, "vx": vX, "vy": vy + 2, "color": BLUE})
-                        pygame.mixer.Sound.play(missile_sound)
-                        projectiles.append({"x": x + 25, "y": y + 25, "vx": vX, "vy": vy - 2, "color": BLUE})
                         pygame.mixer.Sound.play(missile_sound)
                     joueur_actuel=1
                 elif joueur_actuel==1:
@@ -296,27 +301,18 @@ while running:
                     projectiles.append({"x": ab+25, "y": cd+25, "vx": vab, "vy": vcd, "color": RED})
                     pygame.mixer.Sound.play(missile_sound)
                     if keys[pygame.K_f]:
-                        projectiles.append({"x": ab+25, "y": cd+25, "vx": vab, "vy": vcd-1, "color": RED})
+                        projectiles.append({"x": ab+25, "y": cd+25, "vx": vab, "vy": vcd-0.5, "color": RED})
                         pygame.mixer.Sound.play(missile_sound)
-                        projectiles.append({"x": ab+25, "y": cd+25, "vx": vab, "vy": vcd+1, "color": RED})
+                        projectiles.append({"x": ab+25, "y": cd+25, "vx": vab, "vy": vcd+0.5, "color": RED})
                         pygame.mixer.Sound.play(missile_sound)
                     if keys[pygame.K_g]:
                         projectiles.append({"x": ab+25, "y": cd+25, "vx": vab, "vy": vcd+1, "color": RED})
                         pygame.mixer.Sound.play(missile_sound)
                         projectiles.append({"x": ab+25, "y": cd+25, "vx": vab, "vy": vcd-1, "color": RED})
                         pygame.mixer.Sound.play(missile_sound)
-                        projectiles.append({"x": ab+25, "y": cd+25, "vx": vab, "vy": vcd+2, "color": RED})
+                        projectiles.append({"x": ab+25, "y": cd+25, "vx": vab, "vy": vcd+0.5, "color": RED})
                         pygame.mixer.Sound.play(missile_sound)
-                        projectiles.append({"x": ab+25, "y": cd+25, "vx": vab, "vy": vcd-2, "color": RED})
-                        pygame.mixer.Sound.play(missile_sound)
-                    if keys[pygame.K_h]:
-                        projectiles.append({"x": ab + 25, "y": cd + 25, "vx": vab*3, "vy": vcd + 1, "color": RED})
-                        pygame.mixer.Sound.play(missile_sound)
-                        projectiles.append({"x": ab + 25, "y": cd + 25, "vx": vab*3, "vy": vcd - 1, "color": RED})
-                        pygame.mixer.Sound.play(missile_sound)
-                        projectiles.append({"x": ab + 25, "y": cd + 25, "vx": vab*3, "vy": vcd + 2, "color": RED})
-                        pygame.mixer.Sound.play(missile_sound)
-                        projectiles.append({"x": ab + 25, "y": cd + 25, "vx": vab*3, "vy": vcd - 2, "color": RED})
+                        projectiles.append({"x": ab+25, "y": cd+25, "vx": vab, "vy": vcd-0.5, "color": RED})
                         pygame.mixer.Sound.play(missile_sound)
                     joueur_actuel=0
             if event.key == pygame.K_a:
