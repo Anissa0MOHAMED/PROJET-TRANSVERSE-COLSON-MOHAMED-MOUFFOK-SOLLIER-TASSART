@@ -29,7 +29,13 @@ YELLOW = (255, 255, 0)
 BLUE = (0, 0, 255)
 DARK_BLUE = (10,10,50)
 WHITE = (255, 255, 255)
-
+# Couleur Planetes
+planet_images = [
+    pygame.image.load('planete_1.png'),
+    pygame.image.load('planete_2.png'),
+    pygame.image.load('planete_3.png'),
+    pygame.image.load('planete_4.png')
+]
 # Constantes physiques
 G = 10
 tir_vitesse = 10
@@ -55,6 +61,12 @@ planetes = []
 def distance(p1, p2):
     return math.sqrt((p1["x"] - p2["x"])**2 + (p1["y"] - p2["y"])**2)
 
+#Permet de redimensionner les images des planetes
+
+def resize_planet_image(image, masse):
+    size = int(masse /4)
+    return pygame.transform.scale(image, (size, size))
+
 #couleur des planetes
 colors = [
     (255, 0, 0),      # Rouge
@@ -78,7 +90,7 @@ colors = [
     (169, 169, 169),  # Gris foncé
     (0, 255, 127)     # Vert printemps
 ]
-pla = random.randint(2, 4) #permet de définir l'intervale de planéte généré
+pla = random.randint(4, 7) #permet de définir l'intervale de planéte généré
 for i in range(pla):
     while True:
         x = random.randint(1013, 1200)
@@ -86,7 +98,9 @@ for i in range(pla):
         pv = random.randint(3,5)
         masse = random.randint(250, 1500)
         color = random.choice(colors)
-        new_planet = {"x": x, "y": y, "masse": masse, "color": color,'pv':pv}
+        image = random.choice(planet_images)
+        resized_image = resize_planet_image(image, masse)
+        new_planet = {"x": x, "y": y, "masse": masse, "color": color,'pv':pv,'image':resized_image  }
 
         # Vérifier la distance avec toutes les planètes existantes
         if all(distance(new_planet, p) > ((p["masse"] / 10 + new_planet["masse"] / 10)+30) for p in planetes):
@@ -370,7 +384,8 @@ while running:
 
     # Dessiner les planètes
     for planete in planetes:
-        pygame.draw.circle(screen, planete["color"], (planete["x"], planete["y"]), planete["masse"]/10)
+        image_rect = planete["image"].get_rect(center=(planete["x"], planete["y"]))
+        screen.blit(planete["image"], image_rect.topleft)
 
     # Dessiner la position initiale du projectile en bleu
     rotated_image = pygame.transform.rotate(object_image, angle)
@@ -430,7 +445,7 @@ while running:
                 pygame.mixer.Sound.play(explosion_sound)  # Explosion du vaisseau rouge
                 explosions.append({"x": proj["x"], "y": proj["y"], "frame": 0})
                 score2-=1
-                if score2 == 0 :
+                if score2  == 0 :
                     pygame.quit()
                 projectiles.remove(proj)
 
