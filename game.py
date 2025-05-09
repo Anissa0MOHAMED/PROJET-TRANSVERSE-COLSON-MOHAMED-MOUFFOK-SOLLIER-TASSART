@@ -11,6 +11,11 @@ import wx
 import pygame.transform
 
 def jeu ():
+    import pygame
+    import math
+    import random
+    import pygame.transform
+
     # Initialisation de Pygame
     pygame.init()
 
@@ -19,7 +24,7 @@ def jeu ():
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("Moteur physique")
 
-    #texte
+    # texte
     big_font = pygame.font.SysFont('Arial', 40)
     small_font = pygame.font.SysFont('Arial', 20)
 
@@ -32,7 +37,7 @@ def jeu ():
     RED = (255, 0, 0)
     YELLOW = (255, 255, 0)
     BLUE = (0, 0, 255)
-    DARK_BLUE = (10,10,50)
+    DARK_BLUE = (10, 10, 50)
     WHITE = (255, 255, 255)
     # Couleur Planetes
     planet_images = [
@@ -45,79 +50,87 @@ def jeu ():
     G = 10
     tir_vitesse = 10
     # vitesse initiale des balles
-    vx=10
-    vy=0
-    vab=10
-    vcd=0
+    vx = 10
+    vy = 0
+    vab = 10
+    vcd = 0
     # score initiale
-    score1=5
-    score2=5
+    score1 = 5
+    score2 = 5
 
+    # Coordonnées de référence pour la génération des planètes via touche t
+    ref_x1, ref_y1 = 300, 300
+    ref_x2, ref_y2 = 1600, 300
 
-    #carburant pour les vaisseaux
-    carburant0=100
-    carburant1=100
-
+    # carburant pour les vaisseaux
+    carburant0 = 100
+    carburant1 = 100
 
     # Liste des planètes (coordonnées et masses)
     planetes = []
 
-    #permet de mesurer la distance entre 2 planetes
+    # permet de mesurer la distance entre 2 planetes
     def distance(p1, p2):
-        return math.sqrt((p1["x"] - p2["x"])**2 + (p1["y"] - p2["y"])**2)
+        return math.sqrt((p1["x"] - p2["x"]) ** 2 + (p1["y"] - p2["y"]) ** 2)
 
-    #Permet de redimensionner les images des planetes
+    # Permet de redimensionner les images des planetes
 
     def resize_planet_image(image, masse):
-        size = int(masse /4)
+        size = int(masse / 4)
         return pygame.transform.scale(image, (size, size))
 
-    #couleur des planetes
+    # couleur des planetes
     colors = [
-        (255, 0, 0),      # Rouge
-        (0, 255, 0),      # Vert
-        (0, 0, 255),      # Bleu
-        (255, 255, 0),    # Jaune
-        (0, 255, 255),    # Cyan
-        (255, 0, 255),    # Magenta
-        (128, 0, 0),      # Marron
-        (128, 128, 0),    # Olive
-        (0, 128, 0),      # Vert foncé
-        (128, 0, 128),    # Violet
-        (0, 128, 128),    # Bleu-vert
-        (0, 0, 128),      # Bleu marine
-        (255, 165, 0),    # Orange
+        (255, 0, 0),  # Rouge
+        (0, 255, 0),  # Vert
+        (0, 0, 255),  # Bleu
+        (255, 255, 0),  # Jaune
+        (0, 255, 255),  # Cyan
+        (255, 0, 255),  # Magenta
+        (128, 0, 0),  # Marron
+        (128, 128, 0),  # Olive
+        (0, 128, 0),  # Vert foncé
+        (128, 0, 128),  # Violet
+        (0, 128, 128),  # Bleu-vert
+        (0, 0, 128),  # Bleu marine
+        (255, 165, 0),  # Orange
         (255, 192, 203),  # Rose
-        (75, 0, 130),     # Indigo
-        (139, 69, 19),    # Brun
-        (255, 215, 0),    # Or
+        (75, 0, 130),  # Indigo
+        (139, 69, 19),  # Brun
+        (255, 215, 0),  # Or
         (192, 192, 192),  # Argent
         (169, 169, 169),  # Gris foncé
-        (0, 255, 127)     # Vert printemps
+        (0, 255, 127)  # Vert printemps
     ]
-    pla = random.randint(4, 7) #permet de définir l'intervale de planéte généré
+    # Distance minimale entre une planète et les vaisseaux
+    DISTANCE_MINIMALE_VAISSEAUX = 200
+
+    # Génération des planètes
+    pla = random.randint(6, 10)  # Nombre de planètes
     for i in range(pla):
         while True:
-            x = random.randint(1013, 1200)
-            y = random.randint(300, 780)
-            pv = random.randint(3,5)
+            x = random.randint(0, WIDTH)
+            y = random.randint(0, HEIGHT)
+            pv = random.randint(3, 5)
             masse = random.randint(250, 1500)
             color = random.choice(colors)
             image = random.choice(planet_images)
             resized_image = resize_planet_image(image, masse)
-            new_planet = {"x": x, "y": y, "masse": masse, "color": color,'pv':pv,'image':resized_image  }
+            new_planet = {"x": x, "y": y, "masse": masse, "color": color, 'pv': pv, 'image': resized_image}
 
-            # Vérifier la distance avec toutes les planètes existantes
-            if all(distance(new_planet, p) > ((p["masse"] / 10 + new_planet["masse"] / 10)+30) for p in planetes):
+            # Vérifier la distance avec toutes les planètes existantes et les vaisseaux
+            if all(distance(new_planet, p) > ((p["masse"] / 10 + new_planet["masse"] / 10) + 30) for p in planetes) and \
+                    math.sqrt((x - 200) ** 2 + (y - 200) ** 2) > DISTANCE_MINIMALE_VAISSEAUX and \
+                    math.sqrt((x - 1660) ** 2 + (y - 200) ** 2) > DISTANCE_MINIMALE_VAISSEAUX:
                 planetes.append(new_planet)
-                break  # Sort de la boucle while quand une planète valide est trouvée
+                break  # Sort de la boucle une fois une planète valide trouvée
 
     # Liste des projectiles
     projectiles = []
-    explosions=[]
-    #coordonnées d'apparition du point bleu
-    x=200
-    y=200
+    explosions = []
+    # coordonnées d'apparition du point bleu
+    x = 200
+    y = 200
 
     ab = 1660
     cd = 200
@@ -134,6 +147,7 @@ def jeu ():
     missile_sound = pygame.mixer.Sound("missile.mp3")
     musique = pygame.mixer.Sound("04. Hacking Malfunction (Battle).mp3")
     musique.play(-1)
+
     # Calcul des forces gravitationnelles
     def calculeNewton(proj, planete):
         dx = planete["x"] - proj["x"]
@@ -146,7 +160,7 @@ def jeu ():
 
     # Détection de collision entre missiles et vaisseaux
     def collision_vaisseau(proj, vaisseau_x, vaisseau_y):
-        distance_proj_vaisseau = math.sqrt((proj["x"] - (vaisseau_x + 25))**2 + (proj["y"] - (vaisseau_y + 25))**2)
+        distance_proj_vaisseau = math.sqrt((proj["x"] - (vaisseau_x + 25)) ** 2 + (proj["y"] - (vaisseau_y + 25)) ** 2)
         return distance_proj_vaisseau < 30  # Rayon de collision
 
     preview_enabled = True
@@ -154,11 +168,11 @@ def jeu ():
     clock = pygame.time.Clock()
     running = True
     joueur_actuel = 0
-    vy=1
+    vy = 1
     vcd = 1
     last_move_time = pygame.time.get_ticks()
     angle = 0
-    angle2=180
+    angle2 = 180
     speed = 2
     show_preview = False
 
@@ -191,96 +205,54 @@ def jeu ():
         keys = pygame.key.get_pressed()
         moved = False
         if not projectiles:
-            if joueur_actuel==0:
+            if joueur_actuel == 0:
                 if carburant0 > 0:
-                    if 70<y<1013 and 650>x>199:
-                        if keys[pygame.K_UP]:
-                            if keys[pygame.K_r]:
-                                x += speed * math.cos(math.radians(angle)) * 2
-                                y -= speed * math.sin(math.radians(angle)) * 2
-                                carburant0 -=0.5
-                            else:
-                                x += speed * math.cos(math.radians(angle))
-                                y -= speed * math.sin(math.radians(angle))
-                                carburant0-=0.1
-                            moved = True
-                        if keys[pygame.K_DOWN]:
-                            x -= speed * math.cos(math.radians(angle))
-                            y += speed * math.sin(math.radians(angle))
-                            moved = True
-                    else:
-                        if y<=70:
-                            while(y<=70):
-                                y+=1
-                                moved = True
-                        if y>=1013:
-                            while(y>=1013):
-                                y-=1
-                                moved = True
-                        if x<=199:
-                            while(x<=199):
-                                x+=1
-                                moved = True
-                        if x>=650:
-                            while(x>=650):
-                                x-=1
-                                moved = True
-                    if keys[pygame.K_RIGHT]:
-                        angle -= 1
-                        moved = True
-                    if keys[pygame.K_LEFT]:
-                        angle += 1
-                        moved = True
-                    if moved:
-                        last_move_time = pygame.time.get_ticks()
-                        show_preview = False
-                    elif pygame.time.get_ticks() - last_move_time > 200:
-                        show_preview = True
-            elif joueur_actuel==1:
-                if carburant1 >0:
-                    if 70 < cd < 1013 and 1665 > ab > 1200:
-                        if keys[pygame.K_UP]:
-                            if keys[pygame.K_r]:
-                                ab += speed * math.cos(math.radians(angle2))*2
-                                cd -= speed * math.sin(math.radians(angle2))*2
-                                carburant1-=0.5
-                            else:
-                                ab += speed * math.cos(math.radians(angle2))
-                                cd -= speed * math.sin(math.radians(angle2))
-                                carburant1-=0.1
-                            moved = True
-                        if keys[pygame.K_DOWN]:
-                            ab -= speed * math.cos(math.radians(angle2))
-                            cd += speed * math.sin(math.radians(angle2))
-                            moved = True
-                    else:
-                        if cd<=70:
-                            while(cd<=70):
-                                cd+=1
-                                moved = True
-                        if cd>=1013:
-                            while(cd>=1013):
-                                cd-=1
-                                moved = True
-                        if ab<=1200:
-                            while(ab<=1200):
-                                ab+=1
-                                moved = True
-                        if ab>=1665:
-                            while(ab>=1665):
-                                ab-=1
-                                moved = True
-                    if keys[pygame.K_RIGHT]:
-                        angle2 -= 1
-                        moved = True
-                    if keys[pygame.K_LEFT]:
-                        angle2 += 1
-                        moved = True
-                    if moved:
-                        last_move_time = pygame.time.get_ticks()
-                        show_preview = False
-                    elif pygame.time.get_ticks() - last_move_time > 200:
-                        show_preview = True
+                    if keys[pygame.K_UP]:
+                        if keys[pygame.K_r]:
+                            x += speed * math.cos(math.radians(angle)) * 2
+                            y -= speed * math.sin(math.radians(angle)) * 2
+                            carburant0 -= 0.5
+                        else:
+                            x += speed * math.cos(math.radians(angle))
+                            y -= speed * math.sin(math.radians(angle))
+                            carburant0 -= 0.1
+                    if keys[pygame.K_DOWN]:
+                        x -= speed * math.cos(math.radians(angle))
+                        y += speed * math.sin(math.radians(angle))
+                        carburant0 -= 0.1
+                if keys[pygame.K_RIGHT]:
+                    angle -= 1
+                if keys[pygame.K_LEFT]:
+                    angle += 1
+                if moved:
+                    last_move_time = pygame.time.get_ticks()
+                    show_preview = False
+                elif pygame.time.get_ticks() - last_move_time > 200:
+                    show_preview = True
+            elif joueur_actuel == 1:
+                if carburant1 > 0:
+                    if keys[pygame.K_UP]:
+                        if keys[pygame.K_r]:
+                            ab += speed * math.cos(math.radians(angle2)) * 2
+                            cd -= speed * math.sin(math.radians(angle2)) * 2
+                            carburant1 -= 0.5
+                        else:
+                            ab += speed * math.cos(math.radians(angle2))
+                            cd -= speed * math.sin(math.radians(angle2))
+                            carburant1 -= 0.1
+                if keys[pygame.K_DOWN]:
+                    ab -= speed * math.cos(math.radians(angle2))
+                    cd += speed * math.sin(math.radians(angle2))
+                    carburant1 -= 0.1
+            if keys[pygame.K_RIGHT]:
+                angle2 -= 1
+            if keys[pygame.K_LEFT]:
+                angle2 += 1
+        if moved:
+            last_move_time = pygame.time.get_ticks()
+            show_preview = False
+        elif pygame.time.get_ticks() - last_move_time > 200:
+            show_preview = True
 
         for event in pygame.event.get():
 
@@ -291,27 +263,34 @@ def jeu ():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_t:
                     planetes.clear()  # Supprime toutes les anciennes planètes
-                    pla = random.randint(4, 10)  # Nombre de nouvelles planètes
+                    pla = random.randint(6, 10)  # Nombre de nouvelles planètes
                     for i in range(pla):
                         while True:
-                            px = random.randint(320, 1660)
-                            py = random.randint(300, 780)
+                            gen_x = random.randint(0, WIDTH)
+                            gen_y = random.randint(0, HEIGHT)
+                            pv = random.randint(3, 5)
                             masse = random.randint(250, 1500)
-                            a = random.randint(0, 255)
-                            b = random.randint(0, 255)
-                            c = random.randint(0, 255)
-                            color = (a,b,c)
-                            new_planet = {"x": px, "y": py, "masse": masse, "color": color}
+                            color = random.choice(colors)
+                            image = random.choice(planet_images)
+                            resized_image = resize_planet_image(image, masse)
+                            new_planet = {"x": gen_x, "y": gen_y, "masse": masse, "color": color, 'pv': pv,
+                                          'image': resized_image}
 
-                            if all(distance(new_planet, p) > ((p["masse"] / 10 + new_planet["masse"] / 10) + 30) for p in
-                                   planetes):
+                            # Vérifier la distance avec toutes les planètes existantes et les points de référence
+                            if all(distance(new_planet, p) > ((p["masse"] / 10 + new_planet["masse"] / 10) + 30) for p
+                                   in
+                                   planetes) and \
+                                    math.sqrt(
+                                        (gen_x - ref_x1) ** 2 + (gen_y - ref_y1) ** 2) > DISTANCE_MINIMALE_VAISSEAUX and \
+                                    math.sqrt(
+                                        (gen_x - ref_x2) ** 2 + (gen_y - ref_y2) ** 2) > DISTANCE_MINIMALE_VAISSEAUX:
                                 planetes.append(new_planet)
                                 break  # Ajoute la nouvelle planète et quitte la boucle
                 if event.key == pygame.K_SPACE:
-                    if joueur_actuel==0:
+                    if joueur_actuel == 0:
                         vX = vx * math.sin(math.radians(angle) - 80)
                         vy = tir_vitesse * math.cos(math.radians(angle) - 80)
-                        projectiles.append({"x": x+25, "y": y+25, "vx": vX, "vy": vy, "color": BLUE})
+                        projectiles.append({"x": x + 25, "y": y + 25, "vx": vX, "vy": vy, "color": BLUE})
                         pygame.mixer.Sound.play(missile_sound)
                         if keys[pygame.K_f]:
                             projectiles.append({"x": x + 25, "y": y + 25, "vx": vX, "vy": vy + 0.5, "color": BLUE})
@@ -327,35 +306,37 @@ def jeu ():
                             pygame.mixer.Sound.play(missile_sound)
                             projectiles.append({"x": x + 25, "y": y + 25, "vx": vX, "vy": vy - 1, "color": BLUE})
                             pygame.mixer.Sound.play(missile_sound)
-                        joueur_actuel=1
-                    elif joueur_actuel==1:
+                        joueur_actuel = 1
+                        carburant0 = min(carburant0 + 5, 100)
+                    elif joueur_actuel == 1:
                         vab = vx * math.sin(math.radians(angle2) - 80)
                         vcd = tir_vitesse * math.cos(math.radians(angle2) - 80)
-                        projectiles.append({"x": ab+25, "y": cd+25, "vx": vab, "vy": vcd, "color": RED})
+                        projectiles.append({"x": ab + 25, "y": cd + 25, "vx": vab, "vy": vcd, "color": RED})
                         pygame.mixer.Sound.play(missile_sound)
                         if keys[pygame.K_f]:
-                            projectiles.append({"x": ab+25, "y": cd+25, "vx": vab, "vy": vcd-0.5, "color": RED})
+                            projectiles.append({"x": ab + 25, "y": cd + 25, "vx": vab, "vy": vcd - 0.5, "color": RED})
                             pygame.mixer.Sound.play(missile_sound)
-                            projectiles.append({"x": ab+25, "y": cd+25, "vx": vab, "vy": vcd+0.5, "color": RED})
+                            projectiles.append({"x": ab + 25, "y": cd + 25, "vx": vab, "vy": vcd + 0.5, "color": RED})
                             pygame.mixer.Sound.play(missile_sound)
                         if keys[pygame.K_g]:
-                            projectiles.append({"x": ab+25, "y": cd+25, "vx": vab, "vy": vcd+1, "color": RED})
+                            projectiles.append({"x": ab + 25, "y": cd + 25, "vx": vab, "vy": vcd + 1, "color": RED})
                             pygame.mixer.Sound.play(missile_sound)
-                            projectiles.append({"x": ab+25, "y": cd+25, "vx": vab, "vy": vcd-1, "color": RED})
+                            projectiles.append({"x": ab + 25, "y": cd + 25, "vx": vab, "vy": vcd - 1, "color": RED})
                             pygame.mixer.Sound.play(missile_sound)
-                            projectiles.append({"x": ab+25, "y": cd+25, "vx": vab, "vy": vcd+0.5, "color": RED})
+                            projectiles.append({"x": ab + 25, "y": cd + 25, "vx": vab, "vy": vcd + 0.5, "color": RED})
                             pygame.mixer.Sound.play(missile_sound)
-                            projectiles.append({"x": ab+25, "y": cd+25, "vx": vab, "vy": vcd-0.5, "color": RED})
+                            projectiles.append({"x": ab + 25, "y": cd + 25, "vx": vab, "vy": vcd - 0.5, "color": RED})
                             pygame.mixer.Sound.play(missile_sound)
-                        joueur_actuel=0
+                        joueur_actuel = 0
+                        carburant1 = min(carburant1 + 5, 100)
                 if event.key == pygame.K_a:
                     running = False
                     pygame.quit()
                 if event.key == pygame.K_q:
-                    if joueur_actuel==0:
-                        angle+=1
+                    if joueur_actuel == 0:
+                        angle += 1
                     else:
-                        angle2+=1
+                        angle2 += 1
                 if event.key == pygame.K_d:
                     if joueur_actuel == 0:
                         angle -= 1
@@ -365,7 +346,7 @@ def jeu ():
                     preview_enabled = not preview_enabled
                 if event.key == pygame.K_s and vx > 5:
                     vx -= 1
-                if event.key == pygame.K_z and vx <15:
+                if event.key == pygame.K_z and vx < 15:
                     vx += 1
 
         # Effacer l'écran
@@ -374,6 +355,7 @@ def jeu ():
         # Dessin des étoiles
         for star in stars:
             pygame.draw.circle(screen, YELLOW, star, 1)  # Petits points jaunes
+
         def dessiner_jauge_carburant(screen, x, y, largeur, hauteur, carburant):
             # Calculer la largeur de la jauge en fonction du carburant restant
             carburant_largeur = (carburant / 100) * largeur
@@ -401,27 +383,28 @@ def jeu ():
         new_rect = rotated_image.get_rect(center=object_image.get_rect(topleft=(ab, cd)).center)
         screen.blit(rotated_image, new_rect.topleft)
 
-
-    # Mettre à jour et dessiner les projectiles
+        # Mettre à jour et dessiner les projectiles
         for proj in projectiles:
             accel_x, accel_y = 0, 0
-            collide=0
-            for planete in planetes: #permet de calculer pour chaque planete l'acceleration de la balle
+            collide = 0
+            for planete in planetes:  # permet de calculer pour chaque planete l'acceleration de la balle
                 force = calculeNewton(proj, planete)
                 accel_x += force[0]
                 accel_y += force[1]
-                collided = (math.sqrt((proj["x"] - planete["x"]) ** 2 + (proj["y"] - planete["y"]) ** 2) <= planete["masse"]/10)  #permet de calculer pour chaque planete les colisions avec les balles
-                if  collided and collide==0:
-                    planete['pv']-=1
-                    if planete['pv'] <= 0 :
+                collided = (math.sqrt((proj["x"] - planete["x"]) ** 2 + (proj["y"] - planete["y"]) ** 2) <= planete[
+                    "masse"] / 10)  # permet de calculer pour chaque planete les colisions avec les balles
+                if collided and collide == 0:
+                    planete['pv'] -= 1
+                    if planete['pv'] <= 0:
                         planetes.remove(planete)
-                    collide+=1
+                    collide += 1
                     pygame.mixer.Sound.play(explosion_sound)
                     explosions.append({"x": proj["x"], "y": proj["y"], "frame": 0})
                     projectiles.remove(proj)
-            off_screen = (proj["x"] < 0 or proj["x"] > WIDTH or proj["y"] < 0 or proj["y"] > HEIGHT) #verif si la balle est dans l'écran
+            off_screen = (proj["x"] < 0 or proj["x"] > WIDTH or proj["y"] < 0 or proj[
+                "y"] > HEIGHT)  # verif si la balle est dans l'écran
             if off_screen:
-                projectiles.remove(proj) #suprime la balle si elle est hors de l'écran
+                projectiles.remove(proj)  # suprime la balle si elle est hors de l'écran
             # Mise à jour des vitesses et positions
             proj["vx"] += accel_x
             proj["vy"] += accel_y
@@ -431,9 +414,9 @@ def jeu ():
             # Dessiner le projectile
             angle_proj = math.degrees(math.atan2(proj["vy"], proj["vx"]))
             if proj["color"] == BLUE:
-                rotated_missile = pygame.transform.rotate(missile_bleu, -angle_proj-90)
+                rotated_missile = pygame.transform.rotate(missile_bleu, -angle_proj - 90)
             else:
-                rotated_missile = pygame.transform.rotate(missile_rouge, -angle_proj-90)
+                rotated_missile = pygame.transform.rotate(missile_rouge, -angle_proj - 90)
             new_rect = rotated_missile.get_rect(center=(proj["x"], proj["y"]))
             screen.blit(rotated_missile, new_rect.topleft)
 
@@ -442,18 +425,65 @@ def jeu ():
                 if proj["color"] == RED and collision_vaisseau(proj, x, y):
                     pygame.mixer.Sound.play(explosion_sound)  # Explosion du vaisseau bleu
                     explosions.append({"x": proj["x"], "y": proj["y"], "frame": 0})
-                    score1-=1
-                    if score1 == 0 :
+                    score1 -= 1
+                    planetes.clear()  # Supprime toutes les anciennes planètes
+                    pla = random.randint(6, 10)  # Nombre de nouvelles planètes
+                    for i in range(pla):
+                        while True:
+                            gen_x = random.randint(0, WIDTH)
+                            gen_y = random.randint(0, HEIGHT)
+                            pv = random.randint(3, 5)
+                            masse = random.randint(250, 1500)
+                            color = random.choice(colors)
+                            image = random.choice(planet_images)
+                            resized_image = resize_planet_image(image, masse)
+                            new_planet = {"x": gen_x, "y": gen_y, "masse": masse, "color": color, 'pv': pv,
+                                          'image': resized_image}
+
+                            # Vérifier la distance avec toutes les planètes existantes et les points de référence
+                            if all(distance(new_planet, p) > ((p["masse"] / 10 + new_planet["masse"] / 10) + 30) for p
+                                   in
+                                   planetes) and \
+                                    math.sqrt(
+                                        (gen_x - ref_x1) ** 2 + (gen_y - ref_y1) ** 2) > DISTANCE_MINIMALE_VAISSEAUX and \
+                                    math.sqrt(
+                                        (gen_x - ref_x2) ** 2 + (gen_y - ref_y2) ** 2) > DISTANCE_MINIMALE_VAISSEAUX:
+                                planetes.append(new_planet)
+                                break  # Ajoute la nouvelle planète et quitte la boucle
+                    if score1 == 0:
                         pygame.quit()
                     projectiles.remove(proj)
                 elif proj["color"] == BLUE and collision_vaisseau(proj, ab, cd):
                     pygame.mixer.Sound.play(explosion_sound)  # Explosion du vaisseau rouge
                     explosions.append({"x": proj["x"], "y": proj["y"], "frame": 0})
-                    score2-=1
-                    if score2  == 0 :
+                    score2 -= 1
+                    planetes.clear()  # Supprime toutes les anciennes planètes
+                    pla = random.randint(6, 10)  # Nombre de nouvelles planètes
+                    for i in range(pla):
+                        while True:
+                            gen_x = random.randint(0, WIDTH)
+                            gen_y = random.randint(0, HEIGHT)
+                            pv = random.randint(3, 5)
+                            masse = random.randint(250, 1500)
+                            color = random.choice(colors)
+                            image = random.choice(planet_images)
+                            resized_image = resize_planet_image(image, masse)
+                            new_planet = {"x": gen_x, "y": gen_y, "masse": masse, "color": color, 'pv': pv,
+                                          'image': resized_image}
+
+                            # Vérifier la distance avec toutes les planètes existantes et les points de référence
+                            if all(distance(new_planet, p) > ((p["masse"] / 10 + new_planet["masse"] / 10) + 30) for p
+                                   in
+                                   planetes) and \
+                                    math.sqrt(
+                                        (gen_x - ref_x1) ** 2 + (gen_y - ref_y1) ** 2) > DISTANCE_MINIMALE_VAISSEAUX and \
+                                    math.sqrt(
+                                        (gen_x - ref_x2) ** 2 + (gen_y - ref_y2) ** 2) > DISTANCE_MINIMALE_VAISSEAUX:
+                                planetes.append(new_planet)
+                                break  # Ajoute la nouvelle planète et quitte la boucle
+                    if score2 == 0:
                         pygame.quit()
                     projectiles.remove(proj)
-
 
             # Affichage des explosions
         for explosion in explosions:
@@ -464,24 +494,23 @@ def jeu ():
             else:
                 explosions.remove(explosion)
 
-        #affiche puissance du tir
-        if joueur_actuel==0:
-            txt = big_font.render(f'Vitesse: {round(vx, 2)} | Angle: {round(angle,1)%360}°', True, WHITE)
+        # affiche puissance du tir
+        if joueur_actuel == 0:
+            txt = big_font.render(f'Vitesse: {round(vx, 2)} | Angle: {round(angle, 1) % 360}°', True, WHITE)
             screen.blit(txt, (200, 75))
-        elif joueur_actuel==1:
-            txt = big_font.render(f'Vitesse: {round(vx, 2)} | Angle: {round(angle2-180,1)%360}°', True, WHITE)
+        elif joueur_actuel == 1:
+            txt = big_font.render(f'Vitesse: {round(vx, 2)} | Angle: {round(angle2 - 180, 1) % 360}°', True, WHITE)
             screen.blit(txt, (1350, 75))
-        if joueur_actuel==0:
+        if joueur_actuel == 0:
             if show_preview and preview_enabled:
                 trajectory = simulate_trajectory(x, y, angle, vx)
                 for point in trajectory:
                     pygame.draw.circle(screen, WHITE, point, 2)
-        elif joueur_actuel==1:
+        elif joueur_actuel == 1:
             if show_preview and preview_enabled:
                 trajectory = simulate_trajectory(ab, cd, angle2, vx)
                 for point in trajectory:
                     pygame.draw.circle(screen, WHITE, point, 2)
-
 
         txt2 = big_font.render(f'{score1} | {score2}', True, WHITE)
         screen.blit(txt2, (960, 75))

@@ -4,7 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="423e6d16-7e3f-48c9-a0e1-0cbe939c5061" name="Changes" comment="fond">
+    <list default="true" id="423e6d16-7e3f-48c9-a0e1-0cbe939c5061" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/game.py" beforeDir="false" afterPath="$PROJECT_DIR$/game.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -36,6 +37,9 @@
   &quot;associatedIndex&quot;: 2
 }</component>
   <component name="ProjectId" id="2sWQvNeAIHRcU5Dk2vCmEj4grDM" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="1" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="openDirectoriesWithSingleClick" value="true" />
@@ -49,7 +53,7 @@
     "Python.test1.executor": "Run",
     "Python.test2.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "AnissaM",
+    "git-widget-placeholder": "main",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -154,7 +158,7 @@
     <MESSAGE value="images" />
     <MESSAGE value="Revert &quot;fond&quot;&#10;&#10;This reverts commit 6205b7aa49e5eff7541ad9b18b49dabe872fe15f." />
     <MESSAGE value="fond" />
-    <option name="LAST_COMMIT_MESSAGE" value="fond" />
+    <option name="LAST_COMMIT_MESSAGE" value="" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/PROJET_TRANSVERSE_COLSON_MOHAMED_MOUFFOK_SOLLIER_TASSART$main.coverage" NAME="main Coverage Results" MODIFIED="1738573050933" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
