@@ -1757,6 +1757,7 @@ def Afficher_consignes(niveau):
             bouton = bouton_ok
             rect = rect_ok
 
+
         else:
             fond = fond2
             bouton = bouton_jouer
