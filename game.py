@@ -1,3 +1,5 @@
+from asyncio import wait_for
+from os import remove
 from tkinter import *
 from tkinter import messagebox
 from PIL import Image, ImageTk
@@ -62,7 +64,6 @@ def jeu ():
     score2 = 5
 
     # Coordonnées de référence pour la génération des planètes via touche t
-
     ref_x1, ref_y1 = 0.2*WIDTH,  0.2 * HEIGHT
     ref_x2, ref_y2 = 0.8*WIDTH, 0.2 * HEIGHT
 
@@ -83,29 +84,13 @@ def jeu ():
         size = int(masse / 4)
         return pygame.transform.scale(image, (size, size))
 
-    # couleur des planetes
-    colors = [
-        (255, 0, 0),  # Rouge
-        (0, 255, 0),  # Vert
-        (0, 0, 255),  # Bleu
-        (255, 255, 0),  # Jaune
-        (0, 255, 255),  # Cyan
-        (255, 0, 255),  # Magenta
-        (128, 0, 0),  # Marron
-        (128, 128, 0),  # Olive
-        (0, 128, 0),  # Vert foncé
-        (128, 0, 128),  # Violet
-        (0, 128, 128),  # Bleu-vert
-        (0, 0, 128),  # Bleu marine
-        (255, 165, 0),  # Orange
-        (255, 192, 203),  # Rose
-        (75, 0, 130),  # Indigo
-        (139, 69, 19),  # Brun
-        (255, 215, 0),  # Or
-        (192, 192, 192),  # Argent
-        (169, 169, 169),  # Gris foncé
-        (0, 255, 127)  # Vert printemps
-    ]
+    # coordonnées d'apparition du vaisseau 1 puis 2
+    x = 0.04 * WIDTH
+    y = 0.04 * HEIGHT
+
+    ab = 0.8 * WIDTH
+    cd = 0.2 * HEIGHT
+
     # Distance minimale entre une planète et les vaisseaux
     DISTANCE_MINIMALE_VAISSEAUX = 200
 
@@ -113,32 +98,28 @@ def jeu ():
     pla = random.randint(6, 10)  # Nombre de planètes
     for i in range(pla):
         while True:
-            x = random.randint(0, WIDTH)
-            y = random.randint(0, HEIGHT)
+            gen_x = random.randint(0, WIDTH)
+            gen_y = random.randint(0, HEIGHT)
             pv = random.randint(3, 5)
             masse = random.randint(250, 1500)
-            color = random.choice(colors)
             image = random.choice(planet_images)
             resized_image = resize_planet_image(image, masse)
-            new_planet = {"x": x, "y": y, "masse": masse, "color": color, 'pv': pv, 'image': resized_image}
-
-            # Vérifier la distance avec toutes les planètes existantes et les vaisseaux
-            if all(distance(new_planet, p) > ((p["masse"] / 10 + new_planet["masse"] / 10) + 30) for p in planetes) and \
-                    math.sqrt((x - 200) ** 2 + (y - 200) ** 2) > DISTANCE_MINIMALE_VAISSEAUX and \
-                    math.sqrt((x - 1660) ** 2 + (y - 200) ** 2) > DISTANCE_MINIMALE_VAISSEAUX:
+            new_planet = {"x": gen_x, "y": gen_y, "masse": masse, 'pv': pv,
+                          'image': resized_image}
+            # Vérifier la distance avec toutes les planètes existantes, les vaisseaux et les points de référence
+            if all(distance(new_planet, p) > ((p["masse"] / 10 + new_planet["masse"] / 10) + 30) for p
+                   in planetes) and \
+                    math.sqrt(
+                        (gen_x - ref_x1) ** 2 + (gen_y - ref_y1) ** 2) > DISTANCE_MINIMALE_VAISSEAUX and \
+                    math.sqrt(
+                        (gen_x - ref_x2) ** 2 + (gen_y - ref_y2) ** 2) > DISTANCE_MINIMALE_VAISSEAUX and \
+                    math.sqrt((gen_x - x) ** 2 + (gen_y - y) ** 2) > 50 and \
+                    math.sqrt((gen_x - ab) ** 2 + (gen_y - cd) ** 2) > 50:
                 planetes.append(new_planet)
-                break  # Sort de la boucle une fois une planète valide trouvée
-
+                break  # Ajoute la nouvelle planète et quitte la boucle
     # Liste des projectiles
     projectiles = []
     explosions = []
-    # coordonnées d'apparition du point bleu
-
-    x = 0.04*WIDTH
-    y = 0.04*HEIGHT
-
-    ab = 0.8 * WIDTH
-    cd = 0.2 * HEIGHT
 
     object_image = pygame.image.load('vaisseau.png')
     object_image = pygame.transform.scale(object_image, (50, 50))
@@ -235,7 +216,8 @@ def jeu ():
                     show_preview = False
                 elif pygame.time.get_ticks() - last_move_time > 200:
                     show_preview = True
-            elif joueur_actuel == 1:
+
+            if joueur_actuel == 1:
                 if carburant1 > 0:
                     if keys[pygame.K_UP]:
                         if keys[pygame.K_r]:
@@ -250,10 +232,10 @@ def jeu ():
                     ab -= speed * math.cos(math.radians(angle2))
                     cd += speed * math.sin(math.radians(angle2))
                     carburant1 -= 0.1
-            if keys[pygame.K_RIGHT]:
-                angle2 -= 1
-            if keys[pygame.K_LEFT]:
-                angle2 += 1
+                if keys[pygame.K_RIGHT]:
+                    angle2 -= 1
+                if keys[pygame.K_LEFT]:
+                    angle2 += 1
         if moved:
             last_move_time = pygame.time.get_ticks()
             show_preview = False
@@ -276,20 +258,19 @@ def jeu ():
                             gen_y = random.randint(0, HEIGHT)
                             pv = random.randint(3, 5)
                             masse = random.randint(250, 1500)
-                            color = random.choice(colors)
                             image = random.choice(planet_images)
                             resized_image = resize_planet_image(image, masse)
-                            new_planet = {"x": gen_x, "y": gen_y, "masse": masse, "color": color, 'pv': pv,
+                            new_planet = {"x": gen_x, "y": gen_y, "masse": masse, 'pv': pv,
                                           'image': resized_image}
-
-                            # Vérifier la distance avec toutes les planètes existantes et les points de référence
+                            # Vérifier la distance avec toutes les planètes existantes, les vaisseaux et les points de référence
                             if all(distance(new_planet, p) > ((p["masse"] / 10 + new_planet["masse"] / 10) + 30) for p
-                                   in
-                                   planetes) and \
+                                   in planetes) and \
                                     math.sqrt(
                                         (gen_x - ref_x1) ** 2 + (gen_y - ref_y1) ** 2) > DISTANCE_MINIMALE_VAISSEAUX and \
                                     math.sqrt(
-                                        (gen_x - ref_x2) ** 2 + (gen_y - ref_y2) ** 2) > DISTANCE_MINIMALE_VAISSEAUX:
+                                        (gen_x - ref_x2) ** 2 + (gen_y - ref_y2) ** 2) > DISTANCE_MINIMALE_VAISSEAUX and \
+                                    math.sqrt((gen_x - x) ** 2 + (gen_y - y) ** 2) > 50 and \
+                                    math.sqrt((gen_x - ab) ** 2 + (gen_y - cd) ** 2) > 50:
                                 planetes.append(new_planet)
                                 break  # Ajoute la nouvelle planète et quitte la boucle
                 if event.key == pygame.K_SPACE:
@@ -440,20 +421,19 @@ def jeu ():
                             gen_y = random.randint(0, HEIGHT)
                             pv = random.randint(3, 5)
                             masse = random.randint(250, 1500)
-                            color = random.choice(colors)
                             image = random.choice(planet_images)
                             resized_image = resize_planet_image(image, masse)
-                            new_planet = {"x": gen_x, "y": gen_y, "masse": masse, "color": color, 'pv': pv,
+                            new_planet = {"x": gen_x, "y": gen_y, "masse": masse, 'pv': pv,
                                           'image': resized_image}
-
-                            # Vérifier la distance avec toutes les planètes existantes et les points de référence
+                            # Vérifier la distance avec toutes les planètes existantes, les vaisseaux et les points de référence
                             if all(distance(new_planet, p) > ((p["masse"] / 10 + new_planet["masse"] / 10) + 30) for p
-                                   in
-                                   planetes) and \
+                                   in planetes) and \
                                     math.sqrt(
                                         (gen_x - ref_x1) ** 2 + (gen_y - ref_y1) ** 2) > DISTANCE_MINIMALE_VAISSEAUX and \
                                     math.sqrt(
-                                        (gen_x - ref_x2) ** 2 + (gen_y - ref_y2) ** 2) > DISTANCE_MINIMALE_VAISSEAUX:
+                                        (gen_x - ref_x2) ** 2 + (gen_y - ref_y2) ** 2) > DISTANCE_MINIMALE_VAISSEAUX and \
+                                    math.sqrt((gen_x - x) ** 2 + (gen_y - y) ** 2) > 50 and \
+                                    math.sqrt((gen_x - ab) ** 2 + (gen_y - cd) ** 2) > 50:
                                 planetes.append(new_planet)
                                 break  # Ajoute la nouvelle planète et quitte la boucle
                     if score1 == 0:
@@ -465,26 +445,27 @@ def jeu ():
                     score2 -= 1
                     planetes.clear()  # Supprime toutes les anciennes planètes
                     pla = random.randint(6, 10)  # Nombre de nouvelles planètes
+                    planetes.clear()  # Supprime toutes les anciennes planètes
+                    pla = random.randint(6, 10)  # Nombre de nouvelles planètes
                     for i in range(pla):
                         while True:
                             gen_x = random.randint(0, WIDTH)
                             gen_y = random.randint(0, HEIGHT)
                             pv = random.randint(3, 5)
                             masse = random.randint(250, 1500)
-                            color = random.choice(colors)
                             image = random.choice(planet_images)
                             resized_image = resize_planet_image(image, masse)
-                            new_planet = {"x": gen_x, "y": gen_y, "masse": masse, "color": color, 'pv': pv,
+                            new_planet = {"x": gen_x, "y": gen_y, "masse": masse, 'pv': pv,
                                           'image': resized_image}
-
-                            # Vérifier la distance avec toutes les planètes existantes et les points de référence
+                            # Vérifier la distance avec toutes les planètes existantes, les vaisseaux et les points de référence
                             if all(distance(new_planet, p) > ((p["masse"] / 10 + new_planet["masse"] / 10) + 30) for p
-                                   in
-                                   planetes) and \
+                                   in planetes) and \
                                     math.sqrt(
                                         (gen_x - ref_x1) ** 2 + (gen_y - ref_y1) ** 2) > DISTANCE_MINIMALE_VAISSEAUX and \
                                     math.sqrt(
-                                        (gen_x - ref_x2) ** 2 + (gen_y - ref_y2) ** 2) > DISTANCE_MINIMALE_VAISSEAUX:
+                                        (gen_x - ref_x2) ** 2 + (gen_y - ref_y2) ** 2) > DISTANCE_MINIMALE_VAISSEAUX and \
+                                    math.sqrt((gen_x - x) ** 2 + (gen_y - y) ** 2) > 50 and \
+                                    math.sqrt((gen_x - ab) ** 2 + (gen_y - cd) ** 2) > 50:
                                 planetes.append(new_planet)
                                 break  # Ajoute la nouvelle planète et quitte la boucle
                     if score2 == 0:
@@ -503,12 +484,10 @@ def jeu ():
         # affiche puissance du tir
         if joueur_actuel == 0:
             txt = big_font.render(f'Vitesse: {round(vx, 2)} | Angle: {round(angle, 1) % 360}°', True, WHITE)
-
             screen.blit(txt, (0.016 * WIDTH, 0.04 * HEIGHT))
         elif joueur_actuel == 1:
             txt = big_font.render(f'Vitesse: {round(vx, 2)} | Angle: {round(angle2 - 180, 1) % 360}°', True, WHITE)
             screen.blit(txt, (0.795 * WIDTH, 0.04 * HEIGHT))
-
         if joueur_actuel == 0:
             if show_preview and preview_enabled:
                 trajectory = simulate_trajectory(x, y, angle, vx)
@@ -521,9 +500,7 @@ def jeu ():
                     pygame.draw.circle(screen, WHITE, point, 2)
 
         txt2 = big_font.render(f'{score1} | {score2}', True, WHITE)
-
         screen.blit(txt2, (0.4 * WIDTH, 0.04 * HEIGHT))
-
         # Mettre à jour l'affichage
         pygame.display.flip()
         clock.tick(60)
