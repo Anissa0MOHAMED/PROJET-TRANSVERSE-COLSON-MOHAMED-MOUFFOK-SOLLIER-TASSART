@@ -1225,6 +1225,7 @@ def jeu_debutant(): #meme code que pour la definition du niveau intermediaire av
         clock.tick(60)
 
 
+
 def jeu_avance():#meme code que pour la definition du niveau intermediaire avec des variables qui rendent le jeu plus simple
     import pygame
     import math
