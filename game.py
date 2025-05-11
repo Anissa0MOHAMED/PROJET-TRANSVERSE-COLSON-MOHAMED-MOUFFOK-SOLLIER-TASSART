@@ -12,94 +12,98 @@ import os
 import ctypes
 import pygame.transform
 
-pygame.init()
-pseudos = []
-liste_menu=[1,1,5] #son = 1 , visee = active et point de vie =5
-def lancement_pseudo(): #Fonction qui lance une page qui permet de récupérer les noms
+pygame.init() #initialise pygame
+pseudos = [] #initialise la liste qui contient les pseudos des joueurs
 
-    pygame.init() # initialise pygame
-    info = pygame.display.Info() #récupérer les informations sur la taille de l'ecran de l'utilisateur
-    WIDTH, HEIGHT = info.current_w, info.current_h #variables de largeur et de hauteur permettant d'adapter l'affichage à chaque utilisateur
+
+def lancement_pseudo():  # Fonction qui lance une page qui permet de récupérer les noms
+
+    pygame.init()  # initialise pygame
+    info = pygame.display.Info()  # récupérer les informations sur la taille de l'ecran de l'utilisateur
+    WIDTH, HEIGHT = info.current_w, info.current_h  # variables de largeur et de hauteur permettant d'adapter l'affichage à chaque utilisateur
 
     # Création de la fenêtre pygame des pseudos
-    fenetre = pygame.display.set_mode((WIDTH, HEIGHT))  #ajuste la taille de la fenetre à celle de l'utilisateur
-    pygame.display.set_caption("pseudo") #donne un titre à la page
+    fenetre = pygame.display.set_mode((WIDTH, HEIGHT))  # ajuste la taille de la fenetre à celle de l'utilisateur
+    pygame.display.set_caption("pseudo")  # donne un titre à la page
 
     # Chargement des images de fond
-    fond1 = pygame.transform.scale(pygame.image.load('pseudo2.png'), (WIDTH, HEIGHT)) #fond pour demande de pseudo du joueur 1
-    fond2 = pygame.transform.scale(pygame.image.load('pseudo1.png'), (WIDTH, HEIGHT)) #fond pour demande de pseudo du joueur 2
+    fond1 = pygame.transform.scale(pygame.image.load('pseudo2.png'),
+                                   (WIDTH, HEIGHT))  # fond pour demande de pseudo du joueur 1
+    fond2 = pygame.transform.scale(pygame.image.load('pseudo1.png'),
+                                   (WIDTH, HEIGHT))  # fond pour demande de pseudo du joueur 2
 
     # Bouton ok
-    bouton_valider = pygame.image.load("ok.png").convert_alpha() #
-    rect_bouton = bouton_valider.get_rect(topleft=(600, 500)) #recupere la portion de l'ecran associée au bouton ok pour permetre d'interagir avec
+    bouton_valider = pygame.image.load("ok.png").convert_alpha()  #
+    rect_bouton = bouton_valider.get_rect(
+        topleft=(600, 500))  # recupere la portion de l'ecran associée au bouton ok pour permetre d'interagir avec
 
     # Zone de saisie du pseudo rectangle blanc
     input_box = pygame.Rect(525, 400, 300, 50)
     font = pygame.font.Font(None, 36)
-    texte = '' #initialise la variable texte qui sert à récupérer les pseudos
+    texte = ''  # initialise la variable texte qui sert à récupérer les pseudos
 
-    joueur_num = 1 # variable de test (pour l'affichage des pages et pour la position du pseudo dans la liste)
-
+    joueur_num = 1  # variable de test (pour l'affichage des pages et pour la position du pseudo dans la liste)
 
     while True:
         # Affiche le fond selon le joueur
-        fond = fond1 if joueur_num == 1 else fond2
-        fenetre.blit(fond, (0, 0))
+        fond = fond1 if joueur_num == 1 else fond2 #si le joueur en cours est le joueur 1 alors le fond 1 s'affiche sinon, ce sera le fond 2
+        fenetre.blit(fond, (0, 0)) #on fait aparaitre l'image de fond sur la fenetre de jeux aux coordonnees x et y qui valent 0 pour
 
-        # Affiche le bouton ok
+        # Affiche le bouton ok et sa zone de "captation"
         fenetre.blit(bouton_valider, rect_bouton)
 
-        # Affiche la zone de saisie
-        pygame.draw.rect(fenetre, (255, 255, 255), input_box, 2)
-        texte_surface = font.render(texte, True, (255, 255, 255))
-        fenetre.blit(texte_surface, (input_box.x + 10, input_box.y + 10))
+        # Affiche la zone de saisie sous forme de rectangle blanc
+        pygame.draw.rect(fenetre, (255, 255, 255), input_box, 2) # pour créer du blanc, on utilise ces valeurs, width correspond à l'épaisseur du trait, input box est une zone de saisie de valeur
+        texte_surface = font.render(texte, True, (255, 255, 255))# affiche le texte avec la police font, en blanc et avec le lissage activé
+        fenetre.blit(texte_surface, (input_box.x + 10, input_box.y + 10))# affiche la zone d'ecriture avec un decalage de 10 en x et en y par rapport aux bords
 
         # Gestion des événements touches et clics
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                return None
+            if event.type == pygame.QUIT: #si l'utilisateur fait un ctrl echap
+                pygame.quit() #la fenetre pygame se ferme
+                return None #le programme s'arrette
 
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if rect_bouton.collidepoint(event.pos):
-                    pseudos.append(texte)
+            if event.type == pygame.MOUSEBUTTONDOWN: # si l'utilisateur fait un clic avec sa souris
+                if rect_bouton.collidepoint(event.pos): #si c'est dans la zone de traitement du bouton
+                    pseudos.append(texte) # on ajoute le texte saisi à la liste
+                    texte = '' #creer une variable de stockage des pseudos temporaire vide
+                    if joueur_num == 1:# teste si c'est la page de saisie du pseudo du joueur 1
+                        joueur_num = 2 #si oui, on passe au joueur2
+                    else: #sinon on ferme la fenetre
+                        pygame.quit()
+                        return pseudos #on retourne la liste des pseudos mise à jour
+
+            if event.type == pygame.KEYDOWN: # appui touche
+                if event.key == pygame.K_RETURN: # s'agit de la touche entrée
+                    pseudos.append(texte) #on ajoute le texte saisi à la liste pseudo
                     texte = ''
-                    if joueur_num == 1:
+                    if joueur_num == 1: #teste si c'est la page du joueur 1, si oui passe à la seconde page
                         joueur_num = 2
                     else:
-                        pygame.quit()
+                        pygame.quit() # si les deux joueurs ont saisi_on peut fermer la page et retourner la liste pseudo mise à jour
                         return pseudos
-
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RETURN:
-                    pseudos.append(texte)
-                    texte = ''
-                    if joueur_num == 1:
-                        joueur_num = 2
-                    else:
-                        pygame.quit()
-                        return pseudos
-                elif event.key == pygame.K_BACKSPACE:
-                    texte = texte[:-1]
+                elif event.key == pygame.K_BACKSPACE: #si l'utilisateur veut retirer une lettre saisie avec la touche effacer_
+                    texte = texte[:-1] #retire la fin de texte
                 else:
-                    texte += event.unicode
+                    texte += event.unicode #sinon_on peut ajouter le caractère tapé
 
         pygame.display.flip()
 
 
 def gameover1():
-    info = pygame.display.Info()
-    WIDTH, HEIGHT = info.current_w, info.current_h
-    image = pygame.image.load("victoire_joueur1.png")
-    image = pygame.transform.scale(image, (WIDTH, HEIGHT))
+    info = pygame.display.Info() #recupere les infos sur la taille dde l'écran de l'utilisateur
+    WIDTH, HEIGHT = info.current_w, info.current_h #WIDTH prend la valeur de la largeur de l'écran de l'utilisateur et HEIGHT celle de la hauteur
+    image = pygame.image.load("victoire_joueur1.png") #charge l'image de victoire du joueur 1
+    image = pygame.transform.scale(image, (WIDTH, HEIGHT))# redimansione l'image de victoire à la taille de l'ecran de l'utilisateur
 
-    screen = pygame.display.get_surface()
-    screen.blit(image, (0, 0))
-    pygame.display.flip()
-    pygame.time.delay(5000)
+    screen = pygame.display.get_surface() # pour pouvoir utiliser la surface d'affichage pygame
+    screen.blit(image, (0, 0)) # affiche l'image sur cette surface
+    pygame.display.flip() # mise à jour de l'ecran
+    pygame.time.delay(5000) #attends 5s avant de fermer la page
     pygame.quit()
 
-def gameover2():
+
+def gameover2(): # meme chose pour le joueur 2 en cas de victoire
     info = pygame.display.Info()
     WIDTH, HEIGHT = info.current_w, info.current_h
     image = pygame.image.load("victoire_joueur2.png")
@@ -111,57 +115,59 @@ def gameover2():
     pygame.quit()
 
 
-def lancement1():
+def lancement1(): #focntion associée au bouton de jeu débutant
     fenetre.withdraw()  # Cache la fenêtre Tkinter
-    lancement_pseudo()
-    Afficher_consignes(1)
+    lancement_pseudo() # affiche_les fenetres qui recupèrent le pseudo
+    Afficher_consignes(1) #affiche la fenetre de consigne et lance le niveau 1
     fenetre.deiconify()  # Réaffiche l'acceuil quand la fenetre de jeu se ferme
-def lancement2():
 
+def lancement2():#focntion associée au bouton de jeu intermediaire
     fenetre.withdraw()  # Cache la fenêtre Tkinter
 
     lancement_pseudo()
-    Afficher_consignes(2)
+    Afficher_consignes(2)#affiche la fenetre de consigne et lance le niveau 2
     fenetre.deiconify()  # Réaffiche l'acceuil quand la fenetre de jeu se ferme
-def lancement3():
 
+
+def lancement3():#focntion associée au bouton de jeu avancé
     fenetre.withdraw()
 
     lancement_pseudo()
-    Afficher_consignes(3)
+    Afficher_consignes(3)#affiche la fenetre de consigne et lance le niveau 3
     fenetre.deiconify()  # Réaffiche l'acceuil quand la fenetre de jeu se ferme
 
+
 def jeu_intermediaire():
-    info = pygame.display.Info()
-    WIDTH, HEIGHT = info.current_w, info.current_h
+    info = pygame.display.Info() #taille de l'ecran utilisateur
+    WIDTH, HEIGHT = info.current_w, info.current_h # longueur et hauteur de l'ecran de l'utilisateur
 
-    screen = pygame.display.set_mode((WIDTH, HEIGHT))
-    pygame.display.set_caption("Astro Wars ")
+    screen = pygame.display.set_mode((WIDTH, HEIGHT)) # la surface de jeu pygame
+    pygame.display.set_caption("Astro Wars ") #nom du jeu affiché sur la banière
 
-    # texte
+    # polices d'ecritures
     big_font = pygame.font.SysFont('Arial', 40)
     small_font = pygame.font.SysFont('Arial', 20)
 
     # Génération des étoiles
     NUM_STARS = 2000  # Nombre d'étoiles
-    stars = [(random.randint(0, WIDTH), random.randint(0, HEIGHT)) for _ in range(NUM_STARS)]
+    stars = [(random.randint(0, WIDTH), random.randint(0, HEIGHT)) for _ in range(NUM_STARS)] # Liste repertoriant toutes les coordonées des étoiles, chaque x est compris entre 0 et la largeur de l'ecran et chaque y entre 0 et la hauteur de l'ecran_il y a au plus 2000 etoiles
 
-    # Couleurs
+    # Couleurs _ chaque couleur a une valeur rgb
     BLACK = (0, 0, 0)
     RED = (255, 0, 0)
     YELLOW = (255, 255, 0)
     BLUE = (0, 0, 255)
     DARK_BLUE = (10, 10, 50)
     WHITE = (255, 255, 255)
-    # Couleur Planetes
 
+    # charge les images des planètes dans une liste
     planet_images = [
         pygame.image.load('planete_1.png'),
         pygame.image.load('planete_2.png'),
         pygame.image.load('planete_3.png'),
         pygame.image.load('planete_4.png')
     ]
-
+    #charge les images des planètes abimées et les stocke dans une liste
     planet_abimee = [
         pygame.image.load('planete_1_2.png'),
         pygame.image.load('planete_2_2.png'),
@@ -173,29 +179,35 @@ def jeu_intermediaire():
     G = 10
     tir_vitesse = 10
     # vitesse initiale des balles
+    #pour le joueur 1
     vx = 10
     vy = 0
+    #pour le joueur 2
     vab = 10
     vcd = 0
-    # score initiale
+    # score initial pour chaque joueur
     score1 = 0
     score2 = 0
 
-    # carburant pour les vaisseaux
+    # initialisation du carburant pour les vaisseaux
     carburant0 = 100
     carburant1 = 100
 
     # Liste des planètes (coordonnées et masses)
     planetes = []
 
-    # permet de mesurer la distance entre 2 planetes
-    def distance(p1, p2):
+    # permet de mesurer la distance entre 2 planetes grace au theoreme de pythagore
+    def distance(p1, p2): #deux planetes en parametres, elles sont de type liste
+
+        # p1["x"] et p2["x"] sont les coordonnées horizontales (x) des planètes
+        # p1["y"] et p2["y"] sont les coordonnées verticales (y) des planètes
+        # La distance est la racine carrée de la somme des carrés des différences de coordonnées
         return math.sqrt((p1["x"] - p2["x"]) ** 2 + (p1["y"] - p2["y"]) ** 2)
 
-    # Permet de redimensionner les images des planetes
+    # Permet de redimensionner les images des planetes en fonction de leur masse
 
     def resize_planet_image(image, masse):
-        size = int(masse / 4)
+        size = int(masse / 4)  #nouvelle taille et hauteur et en largeur
         return pygame.transform.scale(image, (size, size))
 
     # couleur des planetes
@@ -221,35 +233,38 @@ def jeu_intermediaire():
         (169, 169, 169),  # Gris foncé
         (0, 255, 127)  # Vert printemps
     ]
-    pla = 7  # nombre de planetes generees
+    pla = 7  # nombre de planetes generees, 7 pour le mode intermediaire
     for i in range(pla):
         while True:
-            x = random.randint(int(WIDTH * 0.45), int(WIDTH * 0.6))
-            y = random.randint(int(HEIGHT * 0.3), int(HEIGHT * 0.75))
+            #permet de limiter les zones d'apparition des planetes à environ 1 tiers de l'écran
+            x = random.randint(int(WIDTH * 0.45), int(WIDTH * 0.6)) #x prend une valeur aleatoire dans la zone en longueur
+            y = random.randint(int(HEIGHT * 0.3), int(HEIGHT * 0.75)) # y prend une valeur aleatoire dans la zone en longueur
 
-            pv = 6
-            masse = random.randint(250, 1500)
+            pv = 6 #nombre de points de vies de la planète
+            masse = random.randint(250, 1500) #masse de la planète generée aléatoirement entre 250 et 1500
 
             i = random.randint(0, len(planet_images) - 1)
             image = resize_planet_image(planet_images[i], masse)
             image_abimee = resize_planet_image(planet_abimee[i], masse)
 
-            new_planet = {"x": x,"y": y,"masse": masse,"pv": pv,"compteur": 0,"image": image, "image_abimee": image_abimee }
-            # Vérifier la distance avec toutes les planètes existantes
+            new_planet = {"x": x, "y": y, "masse": masse, "pv": pv, "image": image, "image_abimee": image_abimee} #dictionaire de planète avec ses coordonées, sa masse, son nombre de points de vie et ses deux sprites
+            # Vérifier avant d'ajouter une nouvelle planète qu'elle se situe à au moins 30 px de toute autre planete
             if all(distance(new_planet, p) > ((p["masse"] / 10 + new_planet["masse"] / 10) + 30) for p in planetes):
-                planetes.append(new_planet)
+                planetes.append(new_planet) #ajoute la planete
                 break  # Sort de la boucle while quand une planète valide est trouvée
 
     # Liste des projectiles
     projectiles = []
     explosions = []
-    # coordonnées d'apparition du point bleu
+    # coordonnées d'apparition du vaisseau du premier joueur
     x = int(WIDTH * 0.15)  # Position X du joueur 0 (gauche)
     y = int(HEIGHT / 2)  # Position Y du joueur 0 (milieu vertical)
 
+    # coordonnées d'apparition du vaisseau du deuxieme joueur
     ab = int(WIDTH * 0.85)  # Position X du joueur 1 (droite)
     cd = int(HEIGHT / 2)  # Position Y du joueur 1 (milieu vertical)
 
+    #Affiche_les images et adapte leur taille
     object_image = pygame.image.load('vaisseau.png')
     object_image = pygame.transform.scale(object_image, (50, 50))
     missile_bleu = pygame.image.load('missile bleu.png')
@@ -257,90 +272,111 @@ def jeu_intermediaire():
     missile_rouge = pygame.image.load('missile rouge.png')
     missile_rouge = pygame.transform.scale(missile_rouge, (44, 44))
 
-    explosion_frames = [pygame.image.load(f'explosion/frame_{i}.png') for i in range(6)]
-    explosion_sound = pygame.mixer.Sound("1917.mp3")
-    explosion_sound.set_volume(0.2)  # Réglez le volume à 20% du volume maximal
-    missile_sound = pygame.mixer.Sound("missile.mp3")
-    musique = pygame.mixer.Sound("04. Hacking Malfunction (Battle).mp3")
-    musique.play(-1)
+    explosion_frames = [pygame.image.load(f'explosion/frame_{i}.png') for i in range(6)] #charge les 6 images d'explosions l'une après l'autre
+    explosion_sound = pygame.mixer.Sound("1917.mp3")  #charge le fichier audio d'explosion
+    explosion_sound.set_volume(0.2)  # Règle le volume à 20% du volume maximal
+    missile_sound = pygame.mixer.Sound("missile.mp3")#son du missile
+    musique = pygame.mixer.Sound("04. Hacking Malfunction (Battle).mp3") #charge le son de fon du jeu
+    musique.play(-1) #joue ce son en boucle infinie
 
     # Calcul des forces gravitationnelles
     def calculeNewton(proj, planete):
-        dx = planete["x"] - proj["x"]
-        dy = planete["y"] - proj["y"]
-        distance_carre = dx ** 2 + dy ** 2
+        dx = planete["x"] - proj["x"] #distance horizontale en tre la planète et le missile
+        dy = planete["y"] - proj["y"] #distance verticale entre la planète et le missile
+        distance_carre = dx ** 2 + dy ** 2 #distance au carré entre dx et dy
 
-        force_magnitude = G * planete["masse"] / distance_carre
-        distance = math.sqrt(distance_carre)
-        return [force_magnitude * dx / distance, force_magnitude * dy / distance]
+        force_magnitude = G * planete["masse"] / distance_carre #formule de la gravité qui calcule l'intensité de la force gravitationelle
+        distance = math.sqrt(distance_carre) #calcul de l'hypoténuse pour la distance modifiée entre le missile et la planete
+        return [force_magnitude * dx / distance, force_magnitude * dy / distance] #composantes de la force, horizontale et verticale
 
     # Détection de collision entre missiles et vaisseaux
     def collision_vaisseau(proj, vaisseau_x, vaisseau_y):
-        distance_proj_vaisseau = math.sqrt(
-            (proj["x"] - (vaisseau_x + 25)) ** 2 + (proj["y"] - (vaisseau_y + 25)) ** 2)
-        return distance_proj_vaisseau < 30  # Rayon de collision
+        #Calcule la distance entre le projectile et le centre du vaisseau
+        # On suppose que le vaisseau fait environ 50x50 px, donc on ajoute 25 pour viser son centre
+        distance_proj_vaisseau = math.sqrt((proj["x"] - (vaisseau_x + 25)) ** 2 + (proj["y"] - (vaisseau_y + 25)) ** 2)
+        return distance_proj_vaisseau < 30  # retourne vrai si le missile est à moins de 30 px du vaisseau
 
-    preview_enabled = True
-    # Boucle principale
-    clock = pygame.time.Clock()
-    running = True
-    joueur_actuel = 0
-    vy = 1
-    vcd = 1
-    last_move_time = pygame.time.get_ticks()
-    angle = 0
-    angle2 = 180
-    speed = 2
-    show_preview = False
+    preview_enabled = True  # activer l'aperçu de la trajectoire
 
+    # début du jeu
+    clock = pygame.time.Clock()  # pour gérer le temps (FPS)
+    running = True  # le jeu tourne
+    joueur_actuel = 0  # joueur 1 ou_2
+    vy = 1  # vitesse verticale (genre pour un tir ou un vaisseau)
+    vcd = 1  # autre vitesse verticale
+    last_move_time = pygame.time.get_ticks()  # pour savoir quand on a bougé la dernière fois
+    angle = 0  # angle pour joueur 1
+    angle2 = 180  # angle pour joueur 2 (opposé)
+    speed = 2  # vitesse de rotation ou de déplacement
+    show_preview = False  # est-ce qu’on affiche l’aperçu du tir ou pas
+
+    # fonction qui simule où ira un tir si on le fait maintenant
     def simulate_trajectory(x, y, angle, vx):
-        points = []
-        ship_center_x = x + 25
-        ship_center_y = y + 25
+        points = []  # les points de la trajectoire
+        ship_center_x = x + 25  # centre du vaisseau (x)
+        ship_center_y = y + 25  # centre du vaisseau (y)
+
+        # vitesse de départ du tir en x et y selon l’angle
         temp_vx = vx * math.sin(math.radians(angle) - 80)
         temp_vy = tir_vitesse * math.cos(math.radians(angle) - 80)
-        temp_x, temp_y = ship_center_x, ship_center_y
+
+        temp_x, temp_y = ship_center_x, ship_center_y  # on part du centre du vaisseau
+
+        # on simule 50 étapes de déplacement
         for _ in range(50):
-            accel_x, accel_y = 0, 0
+            accel_x, accel_y = 0, 0  # accélération due à la gravité
+
+            # on regarde la force gravitationnelle de chaque planète
             for planete in planetes:
                 force = calculeNewton({"x": temp_x, "y": temp_y}, planete)
                 accel_x += force[0]
                 accel_y += force[1]
+
+            # on applique la gravité à la vitesse
             temp_vx += accel_x
             temp_vy += accel_y
+
+            # on avance le projectile
             temp_x += temp_vx
             temp_y += temp_vy
+
+            # si ça touche une planète, on arrête
             for planete in planetes:
                 if distance({"x": temp_x, "y": temp_y}, planete) < (planete["masse"] / 10):
-                    return points  # Arrête la simulation si la trajectoire touche une planète
-            if temp_x < 0 or temp_x > WIDTH or temp_y < 0 or temp_y > HEIGHT :
+                    return points  # on retourne la trajectoire arrêtée là
+
+            # si ça sort de l'écran, on arrête aussi
+            if temp_x < 0 or temp_x > WIDTH or temp_y < 0 or temp_y > HEIGHT:
                 break
+
+            # sinon_on ajoute ce point à la liste
             points.append((int(temp_x), int(temp_y)))
-        return points
+
+        return points  # on renvoie tous les points qui permettent de visu la trajectoire
 
     while running:
-        keys = pygame.key.get_pressed()
-        moved = False
-        if not projectiles:
-            if joueur_actuel == 0:
-                if carburant0 > 0:
-                    if 0 < y < HEIGHT and 0 < x < WIDTH // 3:
-                        if keys[pygame.K_UP]:
-                            if keys[pygame.K_r]:
+        keys = pygame.key.get_pressed() #on recupere_ la touche appuyée
+        moved = False #booleen pour savoir si un joueur a bougé
+        if not projectiles: #si aucun missille est à l'ecran (on peut bouger)
+            if joueur_actuel == 0: #si c'est au tour du premier joueur
+                if carburant0 > 0: #si le carburant n'est pas vide et qu'il peut bouger
+                    if 0 < y < HEIGHT and 0 < x < WIDTH // 3: #si le vaiseau est dans la bonne zone
+                        if keys[pygame.K_UP]: #fleche haut appuyée
+                            if keys[pygame.K_r]: #Mode boost s'il appuie sur la touche R_on avance deux fois plus vite dans la direction de l'angle
                                 x += speed * math.cos(math.radians(angle)) * 2
                                 y -= speed * math.sin(math.radians(angle)) * 2
-                                carburant0 -= 0.5
+                                carburant0 -= 0.5 #consomme plus de carburant
                             else:
-                                x += speed * math.cos(math.radians(angle))
+                                x += speed * math.cos(math.radians(angle)) #sinon on_ avance et consomme normalement
                                 y -= speed * math.sin(math.radians(angle))
                                 carburant0 -= 0.1
-                            moved = True
-                        if keys[pygame.K_DOWN]:
+                            moved = True #le joueur bouge
+                        if keys[pygame.K_DOWN]: # mouvement vers le bas avec la fleche du bas
                             x -= speed * math.cos(math.radians(angle))
                             y += speed * math.sin(math.radians(angle))
                             moved = True
                     else:
-                        if y <= 0:
+                        if y <= 0:  #limite la circulation du vaiseau à la taille de la fenetre et le redeplace d'un pixel si il sort de l'ecran
                             while y <= 0:
                                 y += 1
                                 moved = True
@@ -356,19 +392,20 @@ def jeu_intermediaire():
                             while x >= WIDTH // 3:
                                 x -= 1
                                 moved = True
-                    if keys[pygame.K_RIGHT]:
+
+                    if keys[pygame.K_RIGHT]: #tourne à droite avec fleche droite
                         angle -= 1
                         moved = True
-                    if keys[pygame.K_LEFT]:
+                    if keys[pygame.K_LEFT]: #tourne à gauche avec fleche
                         angle += 1
                         moved = True
                     if moved:
-                        last_move_time = pygame.time.get_ticks()
+                        last_move_time = pygame.time.get_ticks() #on recupere le dernier mouvement du joueur
                         show_preview = False
-                    elif pygame.time.get_ticks() - last_move_time > 200:
-                        show_preview = True
+                    elif pygame.time.get_ticks() - last_move_time > 200:#si le temps ecoulé depuis le dernier mouvement est superieur à 200
+                        show_preview = True #on affiche la trajectoire du missile
 
-            elif joueur_actuel == 1:
+            elif joueur_actuel == 1: # on fait la meme chose pour le joeur 2
                 if carburant1 > 0:
                     if 0 < cd < HEIGHT and (2 * WIDTH) // 3 < ab < WIDTH:
                         if keys[pygame.K_UP]:
@@ -420,67 +457,47 @@ def jeu_intermediaire():
                 running = False
                 pygame.quit()
 
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_t:
-                    planetes.clear()  # Supprime toutes les anciennes planètes
-                    pla = random.randint(4, 10)  # Nombre de nouvelles planètes
-                    for i in range(pla):
-                        while True:
-                            px = random.randint(320, 1660)
-                            py = random.randint(300, 780)
-                            masse = random.randint(250, 1500)
-                            a = random.randint(0, 255)
-                            b = random.randint(0, 255)
-                            c = random.randint(0, 255)
-                            color = (a, b, c)
-                            new_planet = {"x": px, "y": py, "masse": masse, "color": color}
-
-                            if all(distance(new_planet, p) > ((p["masse"] / 10 + new_planet["masse"] / 10) + 30) for
-                                   p in
-                                   planetes):
-                                planetes.append(new_planet)
-                                break  # Ajoute la nouvelle planète et quitte la boucle
-                if event.key == pygame.K_SPACE:
+            if event.type == pygame.KEYDOWN: #si le joueur appuie sur une touche
+                if event.key == pygame.K_SPACE: #si c'est sur espace
                     if joueur_actuel == 0:
-                        vX = vx * math.sin(math.radians(angle) - 80)
-                        vy = tir_vitesse * math.cos(math.radians(angle) - 80)
+                        vX = vx * math.sin(math.radians(angle) - 80) # calcule la vitesse du missile en fonction de l'angle d'inclinaison (sinus et cosinus ), ajustement à 80 degrès
+                        vy = tir_vitesse * math.cos(math.radians(angle) - 80)  #me
 
                         # Calcul du nombre de missiles en fonction du carburant
-                        if carburant0 < 25:
-                            nb_missiles = 3
-                        elif carburant0 < 50:
+                        if carburant0 < 25: #si on est au quart de sa capacité
+                            nb_missiles = 3 #on peut tirer 3 missiles en meme temps
+                        elif carburant0 < 50: #on peut tirer deux missiles en meme temps si on est à la moitié du carburant
                             nb_missiles = 2
                         else:
-                            nb_missiles = 1
+                            nb_missiles = 1 #jauge presque pleine, 1 seul missille
 
                         # Tir principal
-                        projectiles.append({"x": x + 25, "y": y + 25, "vx": vX, "vy": vy, "color": BLUE})
-                        pygame.mixer.Sound.play(missile_sound)
+                        projectiles.append({"x": x + 25, "y": y + 25, "vx": vX, "vy": vy, "color": BLUE}) #ajouter les informations du missile bleu au dico qui le représente
+                        pygame.mixer.Sound.play(missile_sound) #lance le son de tir du missile
 
                         # Tirs supplémentaires si nb_missiles > 1
-                        if nb_missiles >= 2:
-                            projectiles.append({"x": x + 25, "y": y + 25, "vx": vX, "vy": vy + 0.5, "color": BLUE})
+                        if nb_missiles >= 2: # si on a la jauge remplie à moitié
+                            projectiles.append({"x": x + 25, "y": y + 25, "vx": vX, "vy": vy + 0.5, "color": BLUE}) #un_ missiles supementaire et ainsi de suite
                             pygame.mixer.Sound.play(missile_sound)
-                            projectiles.append({"x": x + 25, "y": y + 25, "vx": vX, "vy": vy - 0.5, "color": BLUE})
-                            pygame.mixer.Sound.play(missile_sound)
+
                         if nb_missiles == 3:
-                            projectiles.append({"x": x + 25, "y": y + 25, "vx": vX, "vy": vy + 1, "color": BLUE})
+                            projectiles.append({"x": x + 25, "y": y + 25, "vx": vX, "vy": vy + 1, "color": BLUE})#deux missiles suplementaires
                             pygame.mixer.Sound.play(missile_sound)
                             projectiles.append({"x": x + 25, "y": y + 25, "vx": vX, "vy": vy - 1, "color": BLUE})
                             pygame.mixer.Sound.play(missile_sound)
-                        joueur_actuel = 1
+                        joueur_actuel = 1 #le premier joueur a fini son tour et on passe au joueur2
 
-                    elif joueur_actuel == 1:
+                    elif joueur_actuel == 1: #on fait la meme chose pour le second_ joueur quand c'est_sont tour
                         vab = vx * math.sin(math.radians(angle2) - 80)
                         vcd = tir_vitesse * math.cos(math.radians(angle2) - 80)
 
                         # Déterminer le nombre de missiles en fonction du carburant
-                        if carburant1 < 25:
-                            nb_missiles2 = 3
-                        elif carburant1 < 50:
-                            nb_missiles2= 2
+                        if carburant1 < 25: #si il ne reste plus qu'un quart
+                            nb_missiles2 = 3 #on peut tirer 3 missiles
+                        elif carburant1 < 50: #seulement 2 si la jauge est remplie à moitié
+                            nb_missiles2 = 2
                         else:
-                            nb_missiles2 = 1
+                            nb_missiles2 = 1#un seul
 
                         # Tir principal
                         projectiles.append({"x": ab + 25, "y": cd + 25, "vx": vab, "vy": vcd, "color": RED})
@@ -488,36 +505,34 @@ def jeu_intermediaire():
 
                         # Tirs supplémentaires si carburant faible
                         if nb_missiles2 >= 2:
-                            projectiles.append( {"x": ab + 25, "y": cd + 25, "vx": vab, "vy": vcd + 0.5, "color": RED})
+                            projectiles.append({"x": ab + 25, "y": cd + 25, "vx": vab, "vy": vcd + 0.5, "color": RED})
                             pygame.mixer.Sound.play(missile_sound)
-                            projectiles.append({"x": ab + 25, "y": cd + 25, "vx": vab, "vy": vcd - 0.5, "color": RED})
-                            pygame.mixer.Sound.play(missile_sound)
+
                         if nb_missiles2 == 3:
                             projectiles.append({"x": ab + 25, "y": cd + 25, "vx": vab, "vy": vcd + 1, "color": RED})
                             pygame.mixer.Sound.play(missile_sound)
                             projectiles.append({"x": ab + 25, "y": cd + 25, "vx": vab, "vy": vcd - 1, "color": RED})
                             pygame.mixer.Sound.play(missile_sound)
 
-
                         joueur_actuel = 0
                 if event.key == pygame.K_a:
-                    running = False
+                    running = False #A_permet d'arreter le jeu
                     pygame.quit()
-                if event.key == pygame.K_q:
+                if event.key == pygame.K_q: #q modifier l'angle selon le joueur actif
                     if joueur_actuel == 0:
                         angle += 1
                     else:
                         angle2 += 1
-                if event.key == pygame.K_d:
+                if event.key == pygame.K_d: # d modifie l'angle dans l'autre sens
                     if joueur_actuel == 0:
                         angle -= 1
                     else:
                         angle2 -= 1
-                if event.key == pygame.K_e:
+                if event.key == pygame.K_e: # e desactive l'affiche de la trajectoire
                     preview_enabled = not preview_enabled
-                if event.key == pygame.K_s and vx > 5:
+                if event.key == pygame.K_s and vx > 5: # s reduit la vitesse du tir si la vitesse du tir est superieur à_ 5
                     vx -= 1
-                if event.key == pygame.K_z and vx < 15:
+                if event.key == pygame.K_z and vx < 15:#z augmente la vitesse du tir si la vitesse est inferieur à 15
                     vx += 1
 
         # Effacer l'écran
@@ -554,29 +569,29 @@ def jeu_intermediaire():
             screen.blit(planete["image"], image_rect.topleft)
 
         # Dessiner la position initiale du projectile en bleu
-        rotated_image = pygame.transform.rotate(object_image, angle)
-        new_rect = rotated_image.get_rect(center=object_image.get_rect(topleft=(x, y)).center)
-        screen.blit(rotated_image, new_rect.topleft)
+        rotated_image = pygame.transform.rotate(object_image, angle) #modifie l'angle du missile
+        new_rect = rotated_image.get_rect(center=object_image.get_rect(topleft=(x, y)).center) #permet de garder l'image centrée à la meme position après la rotation
+        screen.blit(rotated_image, new_rect.topleft) # affichage du missile à la nouvelle postion
 
+        #meme chose pour l'autre missile
         rotated_image = pygame.transform.rotate(object_image, angle2)
         new_rect = rotated_image.get_rect(center=object_image.get_rect(topleft=(ab, cd)).center)
         screen.blit(rotated_image, new_rect.topleft)
 
         # Mettre à jour et dessiner les projectiles
-        for proj in projectiles:
+        for proj in projectiles: #parcours la liste projectiles
             accel_x, accel_y = 0, 0
             collide = 0
             for planete in planetes:  # permet de calculer pour chaque planete l'acceleration de la balle
                 force = calculeNewton(proj, planete)
                 accel_x += force[0]
                 accel_y += force[1]
-                collided = (math.sqrt((proj["x"] - planete["x"]) ** 2 + (proj["y"] - planete["y"]) ** 2) <= planete[
-                    "masse"] / 10)  # permet de calculer pour chaque planete les colisions avec les balles
-                if collided and collide == 0:
-                    # Réduction des points de vie
+                collided = (math.sqrt((proj["x"] - planete["x"]) ** 2 + (proj["y"] - planete["y"]) ** 2) <= planete["masse"] / 10)  # permet de calculer pour chaque planete les colisions avec les balles
+                if collided and collide == 0: #si collison
+                    # Réduction des points de vie de la planete
                     planete["pv"] -= 1
                     if planete["pv"] == 3:
-                        planete["image"] = planete["image_abimee"]
+                        planete["image"] = planete["image_abimee"] #affichage de fissures au bout de 3 coups
                     elif planete["pv"] <= 0:
                         planetes.remove(planete)
                     collide += 1
@@ -637,15 +652,15 @@ def jeu_intermediaire():
             # Affichage de la vitesse et de l'angle
             txt = big_font.render(f'Vitesse: {round(vx, 2)} | Angle: {round(angle, 1) % 360}°', True, WHITE)
 
-            # Affichage du pseudo juste en dessous du texte de la jauge (ou de l'élément précédent)
+            # Affichage du pseudo juste en dessous du texte de la jauge
             txt_pseudo = big_font.render(f' Player1: {pseudos[0]}', True, WHITE)
 
-            screen.blit(txt_pseudo, (25, 120))  #Affichage du pseudo
+            screen.blit(txt_pseudo, (25, 120))  # Affichage du pseudo
 
             # Affichage du texte de la vitesse et de l'angle à sa place
             screen.blit(txt, (25, 85))
 
-        elif joueur_actuel == 1:
+        elif joueur_actuel == 1: #affichage de la vitesse, de l'angle de tir et du pseudo
             txt = big_font.render(f'Vitesse: {round(vx, 2)} | Angle: {round(angle2 - 180, 1) % 360}°', True, WHITE)
             screen.blit(txt, (WIDTH - 425, 85))
             txt_pseudo = big_font.render(f' Player2: {pseudos[1]}', True, WHITE)
@@ -659,17 +674,19 @@ def jeu_intermediaire():
         elif joueur_actuel == 1:
             if show_preview and preview_enabled:
                 trajectory = simulate_trajectory(ab, cd, angle2, vx)
-
                 for point in trajectory:
                     pygame.draw.circle(screen, WHITE, point, 2)
 
-        txt2 = big_font.render(f'{score1} | {score2}', True, WHITE)
+        txt2 = big_font.render(f'{score1} | {score2}', True, WHITE) #score en texte
         score_rect = txt2.get_rect(center=(WIDTH // 2, 50))
-        screen.blit(txt2, score_rect)
+        screen.blit(txt2, score_rect) #affiche la partie score
         # Mettre à jour l'affichage
         pygame.display.flip()
-        clock.tick(60)
-def jeu_debutant():
+        clock.tick(60) #60 fps
+
+
+
+def jeu_debutant(): #meme code que pour la definition du niveau intermediaire avec des variables qui rendent le jeu plus simple
     info = pygame.display.Info()
     WIDTH, HEIGHT = info.current_w, info.current_h
 
@@ -772,7 +789,8 @@ def jeu_debutant():
             image = resize_planet_image(planet_images[i], masse)
             image_abimee = resize_planet_image(planet_abimee[i], masse)
 
-            new_planet = {"x": x,"y": y,"masse": masse,"pv": pv,"compteur": 0,"image": image, "image_abimee": image_abimee }
+            new_planet = {"x": x, "y": y, "masse": masse, "pv": pv, "compteur": 0, "image": image,
+                          "image_abimee": image_abimee}
             # Vérifier la distance avec toutes les planètes existantes
             if all(distance(new_planet, p) > ((p["masse"] / 10 + new_planet["masse"] / 10) + 30) for p in planetes):
                 planetes.append(new_planet)
@@ -1016,7 +1034,7 @@ def jeu_debutant():
                         if carburant1 < 25:
                             nb_missiles2 = 3
                         elif carburant1 < 50:
-                            nb_missiles2= 2
+                            nb_missiles2 = 2
                         else:
                             nb_missiles2 = 1
 
@@ -1026,7 +1044,7 @@ def jeu_debutant():
 
                         # Tirs supplémentaires si carburant faible
                         if nb_missiles2 >= 2:
-                            projectiles.append( {"x": ab + 25, "y": cd + 25, "vx": vab, "vy": vcd + 0.5, "color": RED})
+                            projectiles.append({"x": ab + 25, "y": cd + 25, "vx": vab, "vy": vcd + 0.5, "color": RED})
                             pygame.mixer.Sound.play(missile_sound)
                             projectiles.append({"x": ab + 25, "y": cd + 25, "vx": vab, "vy": vcd - 0.5, "color": RED})
                             pygame.mixer.Sound.play(missile_sound)
@@ -1035,7 +1053,6 @@ def jeu_debutant():
                             pygame.mixer.Sound.play(missile_sound)
                             projectiles.append({"x": ab + 25, "y": cd + 25, "vx": vab, "vy": vcd - 1, "color": RED})
                             pygame.mixer.Sound.play(missile_sound)
-
 
                         joueur_actuel = 0
                 if event.key == pygame.K_a:
@@ -1146,25 +1163,19 @@ def jeu_debutant():
                     pygame.mixer.Sound.play(explosion_sound)  # Explosion du vaisseau bleu
                     explosions.append({"x": proj["x"], "y": proj["y"], "frame": 0})
                     score2 += 1
-                    if score1 == 5:
-                        gameover1()  # Afficher la fonction Game Over
-                        pygame.display.flip()  # Met à jour l'écran pour montrer le résultat
-                        pygame.time.wait(2000)  # Attendre 2 secondes avant de quitter (facultatif)
-                        pygame.quit()  # Fermer proprement Pygame
-                        return  # Quitte la boucle ou la fonction principale
+                    if score2 == 5:
+                        gameover2()
+                        pygame.quit()
 
                     projectiles.remove(proj)
                 elif proj["color"] == BLUE and collision_vaisseau(proj, ab, cd):
                     pygame.mixer.Sound.play(explosion_sound)  # Explosion du vaisseau rouge
                     explosions.append({"x": proj["x"], "y": proj["y"], "frame": 0})
                     score1 += 1
-                    if score2 == 5:
-                        gameover2()  # Afficher la fonction Game Over
-                        pygame.display.flip()  # Met à jour l'écran pour montrer le résultat
-                        pygame.time.wait(2000)  # Attendre 2 secondes avant de quitter (facultatif)
-                        pygame.quit()  # Fermer proprement Pygame
-                        return  # Quitte la boucle ou la fonction principale
 
+                    if score1 == 5:
+                        gameover1()
+                        pygame.quit()
                     projectiles.remove(proj)
 
             # Affichage des explosions
@@ -1184,7 +1195,7 @@ def jeu_debutant():
             # Affichage du pseudo juste en dessous du texte de la jauge (ou de l'élément précédent)
             txt_pseudo = big_font.render(f' Player1: {pseudos[0]}', True, WHITE)
 
-            screen.blit(txt_pseudo, (25, 120))  #Affichage du pseudo
+            screen.blit(txt_pseudo, (25, 120))  # Affichage du pseudo
 
             # Affichage du texte de la vitesse et de l'angle à sa place
             screen.blit(txt, (25, 85))
@@ -1212,7 +1223,9 @@ def jeu_debutant():
         # Mettre à jour l'affichage
         pygame.display.flip()
         clock.tick(60)
-def jeu_avance():
+
+
+def jeu_avance():#meme code que pour la definition du niveau intermediaire avec des variables qui rendent le jeu plus simple
     import pygame
     import math
     import random
@@ -1223,8 +1236,8 @@ def jeu_avance():
 
     # Captation de la résolution de l'écran afin d'adapter le jeu à toutes les résolutions
     root = Tk()
-    screen_width = root.winfo_screenwidth() #capte la largeur de l'écran
-    screen_height = root.winfo_screenheight() #capte la hauteur de l'écran
+    screen_width = root.winfo_screenwidth()  # capte la largeur de l'écran
+    screen_height = root.winfo_screenheight()  # capte la hauteur de l'écran
     root.destroy()
     # Configuration de la fenêtre
     WIDTH, HEIGHT = screen_width, screen_height
@@ -1266,8 +1279,8 @@ def jeu_avance():
     score2 = 5
 
     # Coordonnées de référence pour la génération des planètes via touche t
-    ref_x1, ref_y1 = 0.2*WIDTH,  0.2 * HEIGHT
-    ref_x2, ref_y2 = 0.8*WIDTH, 0.2 * HEIGHT
+    ref_x1, ref_y1 = 0.2 * WIDTH, 0.2 * HEIGHT
+    ref_x2, ref_y2 = 0.8 * WIDTH, 0.2 * HEIGHT
 
     # carburant pour les vaisseaux
     carburant0 = 100
@@ -1334,8 +1347,6 @@ def jeu_avance():
     explosion_sound = pygame.mixer.Sound("1917.mp3")
     explosion_sound.set_volume(0.2)  # Réglez le volume à 20% du volume maximal
     missile_sound = pygame.mixer.Sound("missile.mp3")
-
-    #if liste_menu[0]==1 :
     musique = pygame.mixer.Sound("04. Hacking Malfunction (Battle).mp3")
     musique.play(-1)
 
@@ -1640,8 +1651,7 @@ def jeu_avance():
                                     math.sqrt((gen_x - ab) ** 2 + (gen_y - cd) ** 2) > 50:
                                 planetes.append(new_planet)
                                 break  # Ajoute la nouvelle planète et quitte la boucle
-                    if score1 == 0:
-                        pygame.quit()
+
                     projectiles.remove(proj)
                 elif proj["color"] == BLUE and collision_vaisseau(proj, ab, cd):
                     pygame.mixer.Sound.play(explosion_sound)  # Explosion du vaisseau rouge
@@ -1673,6 +1683,8 @@ def jeu_avance():
                                 planetes.append(new_planet)
                                 break  # Ajoute la nouvelle planète et quitte la boucle
                     if score2 == 0:
+
+                        gameover2()
                         pygame.quit()
                     projectiles.remove(proj)
 
@@ -1708,6 +1720,8 @@ def jeu_avance():
         # Mettre à jour l'affichage
         pygame.display.flip()
         clock.tick(60)
+
+
 def Afficher_consignes(niveau):
     pygame.init()  # Initialisation de Pygame
 
@@ -1735,7 +1749,7 @@ def Afficher_consignes(niveau):
 
     while en_cours:
         fenetre.fill((0, 0, 0))  # Nettoie l'écran
-        taille_fenetre = fenetre.get_size()
+        taille_fenetre = fenetre.get_size() #recupere la taille de l'ecran
 
         # Affiche le bon fond et bouton selon l'étape
         if affichage_etape == 1:
@@ -1759,7 +1773,7 @@ def Afficher_consignes(niveau):
 
         # Gestion des événements
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
+            if event.type == pygame.QUIT: #ferme la fenetre avec un ctr+alt
                 en_cours = False
 
             elif event.type == pygame.VIDEORESIZE:
@@ -1771,7 +1785,7 @@ def Afficher_consignes(niveau):
                     if affichage_etape == 1:
                         affichage_etape = 2  # Passe à l'étape suivante
                     else:
-
+                        #lance le bon niveay
                         if niveau == 1:
                             jeu_debutant()
                         if niveau == 2:
@@ -1784,90 +1798,94 @@ def Afficher_consignes(niveau):
         pygame.display.flip()  # Rafraîchit l'écran
 
     pygame.quit()  # Ferme proprement Pygame
-def fctmenu():
+
+
+def fctmenu(): #fonction non utilisée
     pygame.init()
 
-    canevas = Canvas(fenetre, width=800, height=600, bg="#322432", highlightthickness=0)
+    # Canevas qui contient la fenetre de menu
+    canevas = Canvas(fenetre, borderwidth=0, highlightthickness=0, width=800, height=600, bg="#322432")
     canevas.create_image(400, 300, image=fond_menu)
+
+    # boutons du menu
+
+    bouton_quitter2 = Button(canevas, image=croix, borderwidth=0, highlightthickness=0, bg="#322432",
+                             command=canevas.destroy)
+    bouton_quitter2.place(x=775, y=4)
+
+    # Variables des paramètres
+    visee_auto = BooleanVar(value=False)
+    niveau_sonore = IntVar(value=100)
+    pv = IntVar(value=100)
+    tirs_par_joueur = IntVar(value=2)
+    degats_par_tir = IntVar(value=10)
+    niveau_selectionne = StringVar(value="Débutant")
+
+    niveaux = ["Débutant", "Intermédiaire", "Avancé", "Expert"]
+    visee = 0
+
+    # Fonction Toggle Visée
+    def toggle_visee():
+        if visee_auto.get():
+            bouton_visee.config(text="Visée automatique : Activée")
+        else:
+            bouton_visee.config(text="Visée automatique : Désactivée")
+            visee = 1
+
+    # Titre
+
+    # Bouton Visée Automatique
+    bouton_visee = Button(canevas, text="Visée automatique : Désactivée",
+                          command=lambda: [visee_auto.set(not visee_auto.get()), toggle_visee()], bg="#322432",
+                          fg="white")
+    bouton_visee.place(x=300, y=80)
+
+    # Fonction pour créer des sliders
+    def ajouter_slider(label, var, min_val, max_val, pos_y):
+        Label(canevas, text=label, fg="white", bg="#322432").place(x=340, y=pos_y)
+        Scale(canevas, from_=min_val, to=max_val, orient="horizontal", variable=var, length=300,
+              troughcolor="#553B6A", fg="white", bg="#322432").place(x=250, y=pos_y + 30)
+
+    ajouter_slider("Niveau Sonore", niveau_sonore, 0, 100, 200)
+    ajouter_slider("Points de Vie", pv, 10, 1000, 280)
+    ajouter_slider("Nombre de tirs par joueur", tirs_par_joueur, 1, 10, 360)
+    ajouter_slider("Dégâts par tir", degats_par_tir, 10, 100, 440)
+
+    # Bouton OK
+    Button(canevas, text="OK", command=canevas.destroy, bg="#322432", fg="white").place(x=380, y=520)
+
     canevas.pack(pady=40)
 
-    Button(canevas, image=croix, bg="#322432", borderwidth=0, command=canevas.destroy).place(x=775, y=4)
-
-    # Variables de contrôle
-    son_active = IntVar(value=1)  # 1 pour activé, 0 pour désactivé
-    visee_active = IntVar(value=0)  # 0 pour désactivé, 1 pour activé
-    pv = IntVar(value=5)  # Initialisation des points de vie à 5
-
-    def toggle(var, button, img_on, img_off):
-        # Inverse l'état de var (1 a 0)
-        var.set(1 - var.get())
-        # Met à jour l'image du bouton selon l'état de var
-        button.config(image=img_on if var.get() else img_off)
-
-    # Création du bouton "Son" (centré à droite)
-    b_son = Button(canevas, image=son1, bg="#322432", borderwidth=0,
-                   command=lambda: toggle(son_active, b_son, son1, son2))
-    b_son.place(x=520, y=160)  # Décalé un peu à droite par rapport au bouton "Visée"
-
-    # Création du bouton "Visée" (centré à gauche)
-    b_visee = Button(canevas, image=visee2, bg="#322432", borderwidth=0,
-                     command=lambda: toggle(visee_active, b_visee, visee1, visee2))
-    b_visee.place(x=230, y=160)  # Placé au centre à gauche
-
-    # Label et slider pour les points de vie (centré en bas)
-    Label(canevas, text="Points de Vie", fg="white", bg="#322432").place(x=345, y=350)  # Label centré
-    Scale(canevas, from_= 1, to= 100 , variable=pv, orient='horizontal').place(x=340, y=380)  # Slider centré
-
-    Scale(canevas, from_=1, to=100, variable=pv, orient='horizontal',
-          length=400,  # Taille du slider (longueur)
-          troughcolor="#553B6A",  # Couleur de la barre du slider
-          sliderrelief="raised",  # Apparence du curseur
-          fg="purple",  # Couleur des ticks (marques)
-          bg="#322432"  # Couleur de fond du slider
-          ).place(x=200, y=380)
-
-    # Fonction pour valider les choix
-    def valider():
-        liste_menu.clear()
-        liste_menu.append(son_active.get())  # Ajoute l'état du son (1 ou 0)
-        liste_menu.append(visee_active.get())  # Ajoute l'état de la visée
-        liste_menu.append(pv.get())  # Ajoute les points de vie
-        canevas.destroy()
-
-    Button(canevas, text="OK", command=valider, bg="#322432", fg="white").place(x=380, y=500)  # Bouton OK centré
+    return
 
 
-
-def quitter():
+def quitter(): #demande à l'utilisateur si_il est sûr de quitter
     if messagebox.askokcancel("Quitter", "Voulez-vous vraiment quitter ?"):
-        fenetre.quit()
+        fenetre.quit() #ferme la fenetre d'acceuil pour de bon
 
 
-fenetre = Tk()
+fenetre = Tk() #fenetre tktinter
 
-#permet l'expension de la page
+# permet l'expension de la page
 fenetre.resizable(True, True)
 fenetre.attributes('-fullscreen', True)
 
-#images de fond
+# images de fond
 acceuil_temp = Image.open("fond_ecran.png")
-fond_menu_temp= Image.open("fond_menu.png")
+fond_menu_temp = Image.open("fond_menu.png")
 
-taille_ecran =(1537,870)
-taille_menu = (800,600)
+taille_ecran = (1537, 870)
+taille_menu = (800, 600)
 
-acceuil_nvl_taille = acceuil_temp.resize(taille_ecran , Image.Resampling.LANCZOS)
-fond_menu_nvl_taille=fond_menu_temp.resize(taille_menu , Image.Resampling.LANCZOS)
+acceuil_nvl_taille = acceuil_temp.resize(taille_ecran, Image.Resampling.LANCZOS)
+fond_menu_nvl_taille = fond_menu_temp.resize(taille_menu, Image.Resampling.LANCZOS)
 
 acceuil = ImageTk.PhotoImage(acceuil_nvl_taille)
 fond_menu = ImageTk.PhotoImage(fond_menu_nvl_taille)
 
+# Images associées aux boutons
 
-
-
-#Images associées aux boutons
-
-#ouverture des images
+# ouverture des images
 menu_temp = Image.open("menu.png")
 play_temp = Image.open("play_final.png")
 exit_temp = Image.open("quitter.png")
@@ -1876,44 +1894,26 @@ debutant = Image.open("debutant.png")
 intermediaire = Image.open("intermediaire.png")
 avance = Image.open("avance.png")
 
-#images des boutons du menu
-visee1_temp = Image.open("visee1.png")
-visee2_temp = Image.open("visee2.png")
-son1_temp = Image.open("son_actif.png")
-son2_temp = Image.open("son_desactive.png")
-
-#taille des boutons
+# taille des boutons
 taillebt = (200, 100)
-taille_icones =(20,20)
-taille_icones2 =(1,1)
-taillebt3=(150,75)
+taille_icones = (20, 20)
+taillebt3 = (150, 75)
 
-#modification de la taille des boutons
-menu_nvl_taille = menu_temp.resize(taillebt , Image.Resampling.LANCZOS)
+# modification de la taille des boutons
+menu_nvl_taille = menu_temp.resize(taillebt, Image.Resampling.LANCZOS)
 exit_nvl_taille = exit_temp.resize(taillebt, Image.Resampling.LANCZOS)
 play_nvl_taille = play_temp.resize(taillebt)
 croix_nvl_taille = croix_temp.resize(taille_icones)
-
-son1_temp_t=son1_temp.resize(taille_icones2)
-son2_temp_t=son2_temp.resize(taille_icones2)
-visee1_temp_t=visee1_temp.resize(taille_icones2)
-visee2_temp_t=visee2_temp.resize(taille_icones2)
 
 debutant_nvl_taille = debutant.resize(taillebt3)
 intermediaire_nvl_taille = intermediaire.resize(taillebt3, Image.Resampling.LANCZOS)
 avance_nvl_taille = avance.resize(taillebt3)
 
-#création de copies des images de taille différente
+# création de copies des images de taille différente
 exit_nvl_taille.save("exit_nvl_taille.png")
 play_nvl_taille.save("playn_nvltaille.png")
 menu_nvl_taille.save("menu_nvl_taille.png")
 croix_nvl_taille.save("croix_nvl_taille.png")
-
-son1_temp_t.save("son1_temp.png")
-son2_temp_t.save("son2_temp.png")
-visee1_temp_t.save("visee1_temp.png")
-visee2_temp_t.save("visee2_temp.png")
-
 
 debutant_nvl_taille.save("debutant_nvl_taille.png")
 intermediaire_nvl_taille.save("intermediaire_nvl_taille.png")
@@ -1924,45 +1924,32 @@ exit = ImageTk.PhotoImage(exit_nvl_taille)
 play = ImageTk.PhotoImage(play_nvl_taille)
 menu = ImageTk.PhotoImage(menu_nvl_taille)
 croix = ImageTk.PhotoImage(croix_nvl_taille)
-son1=ImageTk.PhotoImage(son1_temp)
-son2=ImageTk.PhotoImage(son2_temp)
-visee1=ImageTk.PhotoImage(visee1_temp)
-visee2=ImageTk.PhotoImage(visee2_temp)
 
 debutant = ImageTk.PhotoImage(debutant_nvl_taille)
 intermediaire = ImageTk.PhotoImage(intermediaire_nvl_taille)
 avance = ImageTk.PhotoImage(avance_nvl_taille)
 
-
 Label_acceuil = Label(fenetre, image=acceuil)
 Label_acceuil.place(relwidth=1, relheight=1)
 
+# Bas de page
+bouton_quitter = Button(fenetre, image=exit, borderwidth=0, highlightthickness=0, bg="#322432", command=quitter)
+bouton_quitter.place(x=800, y=762)
+
+bouton_menu = Button(fenetre, image=menu, borderwidth=0, highlightthickness=0, bg="#322432", command=fctmenu)
+bouton_menu.place(x=550, y=762)
+
+# Hauts de page
 
 
-#Bas de page
-bouton_quitter = Button(fenetre, image=exit, borderwidth=0, highlightthickness=0,bg="#322432", command=quitter)
-bouton_quitter.place(x=800, y = 762)
-
-
-bouton_menu = Button (fenetre, image=menu,borderwidth=0,highlightthickness=0, bg="#322432", command=fctmenu)
-bouton_menu.place(x=550, y = 762)
-
-#Hauts de page
-
-
-bouton_intermediaire = Button(fenetre,image=intermediaire,borderwidth=0, highlightthickness=0,bg="#322432", command= lancement1)
+bouton_intermediaire = Button(fenetre, image=intermediaire, borderwidth=0, highlightthickness=0, bg="#322432",
+                              command=lancement1)
 bouton_intermediaire.place(x=650, y=570)
 
-bouton_avance = Button(fenetre,image=avance,borderwidth=0, highlightthickness=0,bg="#322432", command=lancement2)
+bouton_avance = Button(fenetre, image=avance, borderwidth=0, highlightthickness=0, bg="#322432", command=lancement2)
 bouton_avance.place(x=850, y=570)
 
-bouton_debutant = Button(fenetre,image=debutant,borderwidth=0, highlightthickness=0,bg="#322432", command= lancement3)
+bouton_debutant = Button(fenetre, image=debutant, borderwidth=0, highlightthickness=0, bg="#322432", command=lancement3)
 bouton_debutant.place(x=450, y=570)
 
-
-
-
 fenetre.mainloop()
-
-
-
