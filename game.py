@@ -609,6 +609,7 @@ def jeu_intermediaire():
                     score2 += 1
                     if score2 == 5:
                         gameover2()
+                        pygame.quit()
 
                     projectiles.remove(proj)
                 elif proj["color"] == BLUE and collision_vaisseau(proj, ab, cd):
@@ -618,6 +619,7 @@ def jeu_intermediaire():
 
                     if score1 == 5:
                         gameover1()
+                        pygame.quit()
                     projectiles.remove(proj)
 
             # Affichage des explosions
