@@ -26,6 +26,7 @@
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="UPDATE_TYPE" value="REBASE" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
   &quot;lastFilter&quot;: {
@@ -37,6 +38,7 @@
   &quot;selectedUrlAndAccountId&quot;: {
     &quot;url&quot;: &quot;https://github.com/Anissa0MOHAMED/PROJET-TRANSVERSE-COLSON-MOHAMED-MOUFFOK-SOLLIER-TASSART&quot;,
     &quot;accountId&quot;: &quot;068d223f-f398-451e-8d82-ad19cc08e1a2&quot;
+
   }
 }</component>
   <component name="InvalidFacetManager">
@@ -56,6 +58,7 @@
     <option name="openDirectoriesWithSingleClick" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
+
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "Python.game.executor": "Run",
@@ -80,12 +83,11 @@
     "nodejs_package_manager_path": "npm",
     "vue.rearranger.settings.migration": "true"
   }
-}]]></component>
+}</component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-5c90d61e3bab-JavaScript-PY-242.23726.102" />
-        <option value="bundled-python-sdk-5e1850174b45-399fe30bd8c1-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-242.23726.102" />
+        <option value="bundled-python-sdk-fb887030ada0-aa17d162503b-com.jetbrains.pycharm.community.sharedIndexes.bundled-PC-243.21565.199" />
       </set>
     </attachedChunks>
   </component>
@@ -153,6 +155,7 @@
       <option name="project" value="LOCAL" />
       <updated>1744991426639</updated>
     </task>
+
     <task id="LOCAL-00005" summary="images">
       <option name="closed" value="true" />
       <created>1746973234078</created>
@@ -176,6 +179,7 @@
       <option name="presentableId" value="LOCAL-00007" />
       <option name="project" value="LOCAL" />
       <updated>1746975129789</updated>
+
     </task>
     <option name="localTasksCounter" value="8" />
     <servers />
@@ -222,6 +226,7 @@
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
+
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/PROJET_TRANSVERSE_COLSON_MOHAMED_MOUFFOK_SOLLIER_TASSART$test3.coverage" NAME="test3 Coverage Results" MODIFIED="1746909896616" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />

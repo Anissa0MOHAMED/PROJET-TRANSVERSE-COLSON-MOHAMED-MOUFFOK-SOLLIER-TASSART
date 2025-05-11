@@ -1210,6 +1210,7 @@ def jeu_debutant():
         # Mettre à jour l'affichage
         pygame.display.flip()
         clock.tick(60)
+       
 def jeu_avance():
     import pygame
     import math
