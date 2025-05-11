@@ -17,14 +17,19 @@ def jeu ():
     # Initialisation de Pygame
     pygame.init()
 
+    # Captation de la résolution de l'écran afin d'adapter le jeu à toutes les résolutions
+    root = Tk()
+    screen_width = root.winfo_screenwidth() #capte la largeur de l'écran
+    screen_height = root.winfo_screenheight() #capte la hauteur de l'écran
+    root.destroy()
     # Configuration de la fenêtre
-    WIDTH, HEIGHT = 1920, 1080
+    WIDTH, HEIGHT = screen_width, screen_height
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("Moteur physique")
-
+    font_size = round(0.024 * WIDTH)
     # texte
-    big_font = pygame.font.SysFont('Arial', 40)
-    small_font = pygame.font.SysFont('Arial', 20)
+    big_font = pygame.font.SysFont('Arial', font_size)
+    small_font = pygame.font.SysFont('Arial', font_size)
 
     # Génération des étoiles
     NUM_STARS = 2000  # Nombre d'étoiles
@@ -57,8 +62,9 @@ def jeu ():
     score2 = 5
 
     # Coordonnées de référence pour la génération des planètes via touche t
-    ref_x1, ref_y1 = 300, 300
-    ref_x2, ref_y2 = 1600, 300
+
+    ref_x1, ref_y1 = 0.2*WIDTH,  0.2 * HEIGHT
+    ref_x2, ref_y2 = 0.8*WIDTH, 0.2 * HEIGHT
 
     # carburant pour les vaisseaux
     carburant0 = 100
@@ -127,11 +133,13 @@ def jeu ():
     projectiles = []
     explosions = []
     # coordonnées d'apparition du point bleu
-    x = 200
-    y = 200
 
-    ab = 1660
-    cd = 200
+    x = 0.04*WIDTH
+    y = 0.04*HEIGHT
+
+    ab = 0.8 * WIDTH
+    cd = 0.2 * HEIGHT
+
     object_image = pygame.image.load('vaisseau.png')
     object_image = pygame.transform.scale(object_image, (50, 50))
     missile_bleu = pygame.image.load('missile bleu.png')
@@ -364,8 +372,8 @@ def jeu ():
             # Dessiner la bordure de la jauge (noir)
             pygame.draw.rect(screen, BLACK, (x, y, largeur, hauteur), 2)
 
-        dessiner_jauge_carburant(screen, 200, 50, 200, 30, carburant0)
-        dessiner_jauge_carburant(screen, 1500, 50, 200, 30, carburant1)
+        dessiner_jauge_carburant(screen, 0.01 * WIDTH, 0.04 * HEIGHT, 0.2 * WIDTH, 0.04 * HEIGHT, carburant0)
+        dessiner_jauge_carburant(screen, WIDTH - 0.21 * WIDTH, 0.04 * HEIGHT, 0.2 * WIDTH, 0.04 * HEIGHT, carburant1)
 
         # Dessiner les planètes
         for planete in planetes:
@@ -495,10 +503,12 @@ def jeu ():
         # affiche puissance du tir
         if joueur_actuel == 0:
             txt = big_font.render(f'Vitesse: {round(vx, 2)} | Angle: {round(angle, 1) % 360}°', True, WHITE)
-            screen.blit(txt, (200, 75))
+
+            screen.blit(txt, (0.016 * WIDTH, 0.04 * HEIGHT))
         elif joueur_actuel == 1:
             txt = big_font.render(f'Vitesse: {round(vx, 2)} | Angle: {round(angle2 - 180, 1) % 360}°', True, WHITE)
-            screen.blit(txt, (1350, 75))
+            screen.blit(txt, (0.795 * WIDTH, 0.04 * HEIGHT))
+
         if joueur_actuel == 0:
             if show_preview and preview_enabled:
                 trajectory = simulate_trajectory(x, y, angle, vx)
@@ -511,7 +521,9 @@ def jeu ():
                     pygame.draw.circle(screen, WHITE, point, 2)
 
         txt2 = big_font.render(f'{score1} | {score2}', True, WHITE)
-        screen.blit(txt2, (960, 75))
+
+        screen.blit(txt2, (0.4 * WIDTH, 0.04 * HEIGHT))
+
         # Mettre à jour l'affichage
         pygame.display.flip()
         clock.tick(60)
