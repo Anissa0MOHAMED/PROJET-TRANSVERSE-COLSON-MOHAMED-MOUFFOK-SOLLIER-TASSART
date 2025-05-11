@@ -13,11 +13,10 @@ import ctypes
 import pygame.transform
 
 pygame.init()
-
 pseudos = []
 def lancement_pseudo(): #Fonction qui lance une page qui permet de récupérer les noms
 
-    pygame.init() # initialise pygame ( 2e fois pour sureté )
+    pygame.init() # initialise pygame
     info = pygame.display.Info() #récupérer les informations sur la taille de l'ecran de l'utilisateur
     WIDTH, HEIGHT = info.current_w, info.current_h #variables de largeur et de hauteur permettant d'adapter l'affichage à chaque utilisateur
 
@@ -33,10 +32,10 @@ def lancement_pseudo(): #Fonction qui lance une page qui permet de récupérer l
     bouton_valider = pygame.image.load("ok.png").convert_alpha() #
     rect_bouton = bouton_valider.get_rect(topleft=(600, 500)) #recupere la portion de l'ecran associée au bouton ok pour permetre d'interagir avec
 
-    # Zone de saisie du pseudo ( rectangle blanc )
+    # Zone de saisie du pseudo rectangle blanc
     input_box = pygame.Rect(525, 400, 300, 50)
     font = pygame.font.Font(None, 36)
-    texte = '' #initialise la variable texte qui sert à récupérer les pseudo
+    texte = '' #initialise la variable texte qui sert à récupérer les pseudos
 
     joueur_num = 1 # variable de test (pour l'affichage des pages et pour la position du pseudo dans la liste)
 
@@ -98,6 +97,7 @@ def gameover1():
     pygame.display.flip()
     pygame.time.delay(5000)
     pygame.quit()
+
 def gameover2():
     info = pygame.display.Info()
     WIDTH, HEIGHT = info.current_w, info.current_h
@@ -111,8 +111,6 @@ def gameover2():
 
 
 def lancement1():
-
-
     fenetre.withdraw()  # Cache la fenêtre Tkinter
     lancement_pseudo()
     Afficher_consignes(1)
@@ -132,7 +130,7 @@ def lancement3():
     Afficher_consignes(3)
     fenetre.deiconify()  # Réaffiche l'acceuil quand la fenetre de jeu se ferme
 
-def jeu_debutant():
+def jeu_intermediaire():
     info = pygame.display.Info()
     WIDTH, HEIGHT = info.current_w, info.current_h
 
@@ -576,7 +574,7 @@ def jeu_debutant():
                 if collided and collide == 0:
                     # Réduction des points de vie
                     planete["pv"] -= 1
-                    if planete["pv"] == 1:
+                    if planete["pv"] == 3:
                         planete["image"] = planete["image_abimee"]
                     elif planete["pv"] <= 0:
                         planetes.remove(planete)
@@ -609,17 +607,17 @@ def jeu_debutant():
                     pygame.mixer.Sound.play(explosion_sound)  # Explosion du vaisseau bleu
                     explosions.append({"x": proj["x"], "y": proj["y"], "frame": 0})
                     score2 += 1
-                    if score1 == 5:
-                        gameover1()
-                        pygame.quit()
+                    if score2 == 5:
+                        gameover2()
+
                     projectiles.remove(proj)
                 elif proj["color"] == BLUE and collision_vaisseau(proj, ab, cd):
                     pygame.mixer.Sound.play(explosion_sound)  # Explosion du vaisseau rouge
                     explosions.append({"x": proj["x"], "y": proj["y"], "frame": 0})
                     score1 += 1
-                    if score2 == 5:
-                        gameover2()
-                        pygame.quit()
+
+                    if score1 == 5:
+                        gameover1()
                     projectiles.remove(proj)
 
             # Affichage des explosions
@@ -667,7 +665,7 @@ def jeu_debutant():
         # Mettre à jour l'affichage
         pygame.display.flip()
         clock.tick(60)
-def jeu_intermediaire():
+def jeu_debutant():
     info = pygame.display.Info()
     WIDTH, HEIGHT = info.current_w, info.current_h
 
@@ -763,7 +761,7 @@ def jeu_intermediaire():
             x = random.randint(int(WIDTH * 0.45), int(WIDTH * 0.6))
             y = random.randint(int(HEIGHT * 0.3), int(HEIGHT * 0.75))
 
-            pv = 6
+            pv = 3
             masse = random.randint(250, 1500)
 
             i = random.randint(0, len(planet_images) - 1)
@@ -1111,7 +1109,7 @@ def jeu_intermediaire():
                 if collided and collide == 0:
                     # Réduction des points de vie
                     planete["pv"] -= 1
-                    if planete["pv"] == 3:
+                    if planete["pv"] == 1:
                         planete["image"] = planete["image_abimee"]
                     elif planete["pv"] <= 0:
                         planetes.remove(planete)
@@ -1145,16 +1143,24 @@ def jeu_intermediaire():
                     explosions.append({"x": proj["x"], "y": proj["y"], "frame": 0})
                     score2 += 1
                     if score1 == 5:
-                        gameover1()
-                        pygame.quit()
+                        gameover1()  # Afficher la fonction Game Over
+                        pygame.display.flip()  # Met à jour l'écran pour montrer le résultat
+                        pygame.time.wait(2000)  # Attendre 2 secondes avant de quitter (facultatif)
+                        pygame.quit()  # Fermer proprement Pygame
+                        return  # Quitte la boucle ou la fonction principale
+
                     projectiles.remove(proj)
                 elif proj["color"] == BLUE and collision_vaisseau(proj, ab, cd):
                     pygame.mixer.Sound.play(explosion_sound)  # Explosion du vaisseau rouge
                     explosions.append({"x": proj["x"], "y": proj["y"], "frame": 0})
                     score1 += 1
                     if score2 == 5:
-                        gameover2()
-                        pygame.quit()
+                        gameover2()  # Afficher la fonction Game Over
+                        pygame.display.flip()  # Met à jour l'écran pour montrer le résultat
+                        pygame.time.wait(2000)  # Attendre 2 secondes avant de quitter (facultatif)
+                        pygame.quit()  # Fermer proprement Pygame
+                        return  # Quitte la boucle ou la fonction principale
+
                     projectiles.remove(proj)
 
             # Affichage des explosions
@@ -1935,5 +1941,6 @@ bouton_debutant.place(x=450, y=570)
 
 
 fenetre.mainloop()
+
 
 
