@@ -1757,12 +1757,13 @@ def Afficher_consignes(niveau):
             bouton = bouton_ok
             rect = rect_ok
 
+
         else:
             fond = fond2
             bouton = bouton_jouer
             rect = rect_jouer
 
-        # Redimensionne si la fenêtre a changé de taille
+        # Redimensionne si la fenêtre a changé_ de taille
         if taille_fenetre != fond.get_size():
             fond_affiche = pygame.transform.scale(fond, taille_fenetre)
         else:
