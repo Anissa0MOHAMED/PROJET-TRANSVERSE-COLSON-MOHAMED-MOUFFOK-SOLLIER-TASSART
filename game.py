@@ -14,6 +14,7 @@ import pygame.transform
 
 pygame.init()
 pseudos = []
+liste_menu=[1,1,5] #son = 1 , visee = active et point de vie =5
 def lancement_pseudo(): #Fonction qui lance une page qui permet de récupérer les noms
 
     pygame.init() # initialise pygame
@@ -312,7 +313,7 @@ def jeu_intermediaire():
             for planete in planetes:
                 if distance({"x": temp_x, "y": temp_y}, planete) < (planete["masse"] / 10):
                     return points  # Arrête la simulation si la trajectoire touche une planète
-            if temp_x < 0 or temp_x > WIDTH or temp_y < 0 or temp_y > HEIGHT:
+            if temp_x < 0 or temp_x > WIDTH or temp_y < 0 or temp_y > HEIGHT :
                 break
             points.append((int(temp_x), int(temp_y)))
         return points
@@ -658,6 +659,7 @@ def jeu_intermediaire():
         elif joueur_actuel == 1:
             if show_preview and preview_enabled:
                 trajectory = simulate_trajectory(ab, cd, angle2, vx)
+
                 for point in trajectory:
                     pygame.draw.circle(screen, WHITE, point, 2)
 
@@ -1332,6 +1334,8 @@ def jeu_avance():
     explosion_sound = pygame.mixer.Sound("1917.mp3")
     explosion_sound.set_volume(0.2)  # Réglez le volume à 20% du volume maximal
     missile_sound = pygame.mixer.Sound("missile.mp3")
+
+    #if liste_menu[0]==1 :
     musique = pygame.mixer.Sound("04. Hacking Malfunction (Battle).mp3")
     musique.play(-1)
 
@@ -1783,61 +1787,57 @@ def Afficher_consignes(niveau):
 def fctmenu():
     pygame.init()
 
-    #Canevas qui contient la fenetre de menu
-    canevas = Canvas(fenetre, borderwidth=0, highlightthickness=0, width=800, height=600, bg="#322432")
+    canevas = Canvas(fenetre, width=800, height=600, bg="#322432", highlightthickness=0)
     canevas.create_image(400, 300, image=fond_menu)
-
-    #boutons du menu
-
-    bouton_quitter2 = Button(canevas, image=croix, borderwidth=0, highlightthickness=0, bg="#322432", command=canevas.destroy)
-    bouton_quitter2.place(x=775, y=4)
-
-
-    # Variables des paramètres
-    visee_auto = BooleanVar(value=False)
-    niveau_sonore = IntVar(value=100)
-    pv = IntVar(value=100)
-    tirs_par_joueur = IntVar(value=2)
-    degats_par_tir = IntVar(value=10)
-    niveau_selectionne = StringVar(value="Débutant")
-
-    niveaux = ["Débutant", "Intermédiaire", "Avancé", "Expert"]
-    visee=0
-    # Fonction Toggle Visée
-    def toggle_visee():
-        if visee_auto.get():
-            bouton_visee.config(text="Visée automatique : Activée")
-        else:
-            bouton_visee.config(text="Visée automatique : Désactivée")
-            visee = 1
-
-    # Titre
-
-
-    # Bouton Visée Automatique
-    bouton_visee = Button(canevas, text="Visée automatique : Désactivée",command=lambda: [visee_auto.set(not visee_auto.get()), toggle_visee()], bg="#322432",fg="white")
-    bouton_visee.place(x=300, y=80)
-
-
-
-
-    # Fonction pour créer des sliders
-    def ajouter_slider(label, var, min_val, max_val, pos_y):
-        Label(canevas, text=label, fg="white", bg="#322432").place(x=340, y=pos_y)
-        Scale(canevas, from_=min_val, to=max_val, orient="horizontal", variable=var, length=300,
-        troughcolor="#553B6A", fg="white", bg="#322432").place(x=250, y=pos_y + 30)
-
-    ajouter_slider("Niveau Sonore", niveau_sonore, 0, 100, 200)
-    ajouter_slider("Points de Vie", pv, 10, 1000, 280)
-    ajouter_slider("Nombre de tirs par joueur", tirs_par_joueur, 1, 10, 360)
-    ajouter_slider("Dégâts par tir", degats_par_tir, 10, 100, 440)
-
-    # Bouton OK
-    Button(canevas, text="OK", command=canevas.destroy,bg="#322432", fg="white").place(x=380, y=520)
-
     canevas.pack(pady=40)
 
-    return
+    Button(canevas, image=croix, bg="#322432", borderwidth=0, command=canevas.destroy).place(x=775, y=4)
+
+    # Variables de contrôle
+    son_active = IntVar(value=1)  # 1 pour activé, 0 pour désactivé
+    visee_active = IntVar(value=0)  # 0 pour désactivé, 1 pour activé
+    pv = IntVar(value=5)  # Initialisation des points de vie à 5
+
+    def toggle(var, button, img_on, img_off):
+        # Inverse l'état de var (1 a 0)
+        var.set(1 - var.get())
+        # Met à jour l'image du bouton selon l'état de var
+        button.config(image=img_on if var.get() else img_off)
+
+    # Création du bouton "Son" (centré à droite)
+    b_son = Button(canevas, image=son1, bg="#322432", borderwidth=0,
+                   command=lambda: toggle(son_active, b_son, son1, son2))
+    b_son.place(x=520, y=160)  # Décalé un peu à droite par rapport au bouton "Visée"
+
+    # Création du bouton "Visée" (centré à gauche)
+    b_visee = Button(canevas, image=visee2, bg="#322432", borderwidth=0,
+                     command=lambda: toggle(visee_active, b_visee, visee1, visee2))
+    b_visee.place(x=230, y=160)  # Placé au centre à gauche
+
+    # Label et slider pour les points de vie (centré en bas)
+    Label(canevas, text="Points de Vie", fg="white", bg="#322432").place(x=345, y=350)  # Label centré
+    Scale(canevas, from_= 1, to= 100 , variable=pv, orient='horizontal').place(x=340, y=380)  # Slider centré
+
+    Scale(canevas, from_=1, to=100, variable=pv, orient='horizontal',
+          length=400,  # Taille du slider (longueur)
+          troughcolor="#553B6A",  # Couleur de la barre du slider
+          sliderrelief="raised",  # Apparence du curseur
+          fg="purple",  # Couleur des ticks (marques)
+          bg="#322432"  # Couleur de fond du slider
+          ).place(x=200, y=380)
+
+    # Fonction pour valider les choix
+    def valider():
+        liste_menu.clear()
+        liste_menu.append(son_active.get())  # Ajoute l'état du son (1 ou 0)
+        liste_menu.append(visee_active.get())  # Ajoute l'état de la visée
+        liste_menu.append(pv.get())  # Ajoute les points de vie
+        canevas.destroy()
+
+    Button(canevas, text="OK", command=valider, bg="#322432", fg="white").place(x=380, y=500)  # Bouton OK centré
+
+
+
 def quitter():
     if messagebox.askokcancel("Quitter", "Voulez-vous vraiment quitter ?"):
         fenetre.quit()
@@ -1876,11 +1876,16 @@ debutant = Image.open("debutant.png")
 intermediaire = Image.open("intermediaire.png")
 avance = Image.open("avance.png")
 
-
+#images des boutons du menu
+visee1_temp = Image.open("visee1.png")
+visee2_temp = Image.open("visee2.png")
+son1_temp = Image.open("son_actif.png")
+son2_temp = Image.open("son_desactive.png")
 
 #taille des boutons
 taillebt = (200, 100)
 taille_icones =(20,20)
+taille_icones2 =(1,1)
 taillebt3=(150,75)
 
 #modification de la taille des boutons
@@ -1888,6 +1893,11 @@ menu_nvl_taille = menu_temp.resize(taillebt , Image.Resampling.LANCZOS)
 exit_nvl_taille = exit_temp.resize(taillebt, Image.Resampling.LANCZOS)
 play_nvl_taille = play_temp.resize(taillebt)
 croix_nvl_taille = croix_temp.resize(taille_icones)
+
+son1_temp_t=son1_temp.resize(taille_icones2)
+son2_temp_t=son2_temp.resize(taille_icones2)
+visee1_temp_t=visee1_temp.resize(taille_icones2)
+visee2_temp_t=visee2_temp.resize(taille_icones2)
 
 debutant_nvl_taille = debutant.resize(taillebt3)
 intermediaire_nvl_taille = intermediaire.resize(taillebt3, Image.Resampling.LANCZOS)
@@ -1899,6 +1909,12 @@ play_nvl_taille.save("playn_nvltaille.png")
 menu_nvl_taille.save("menu_nvl_taille.png")
 croix_nvl_taille.save("croix_nvl_taille.png")
 
+son1_temp_t.save("son1_temp.png")
+son2_temp_t.save("son2_temp.png")
+visee1_temp_t.save("visee1_temp.png")
+visee2_temp_t.save("visee2_temp.png")
+
+
 debutant_nvl_taille.save("debutant_nvl_taille.png")
 intermediaire_nvl_taille.save("intermediaire_nvl_taille.png")
 avance_nvl_taille.save("avance_nvl_taille.png")
@@ -1908,6 +1924,10 @@ exit = ImageTk.PhotoImage(exit_nvl_taille)
 play = ImageTk.PhotoImage(play_nvl_taille)
 menu = ImageTk.PhotoImage(menu_nvl_taille)
 croix = ImageTk.PhotoImage(croix_nvl_taille)
+son1=ImageTk.PhotoImage(son1_temp)
+son2=ImageTk.PhotoImage(son2_temp)
+visee1=ImageTk.PhotoImage(visee1_temp)
+visee2=ImageTk.PhotoImage(visee2_temp)
 
 debutant = ImageTk.PhotoImage(debutant_nvl_taille)
 intermediaire = ImageTk.PhotoImage(intermediaire_nvl_taille)
