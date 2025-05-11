@@ -1,5 +1,3 @@
-from asyncio import wait_for
-from os import remove
 from tkinter import *
 from tkinter import messagebox
 from PIL import Image, ImageTk
@@ -64,6 +62,7 @@ def jeu ():
     score2 = 5
 
     # Coordonnées de référence pour la génération des planètes via touche t
+
     ref_x1, ref_y1 = 0.2*WIDTH,  0.2 * HEIGHT
     ref_x2, ref_y2 = 0.8*WIDTH, 0.2 * HEIGHT
 
@@ -134,11 +133,13 @@ def jeu ():
     projectiles = []
     explosions = []
     # coordonnées d'apparition du point bleu
+
     x = 0.04*WIDTH
     y = 0.04*HEIGHT
 
     ab = 0.8 * WIDTH
     cd = 0.2 * HEIGHT
+
     object_image = pygame.image.load('vaisseau.png')
     object_image = pygame.transform.scale(object_image, (50, 50))
     missile_bleu = pygame.image.load('missile bleu.png')
@@ -502,10 +503,12 @@ def jeu ():
         # affiche puissance du tir
         if joueur_actuel == 0:
             txt = big_font.render(f'Vitesse: {round(vx, 2)} | Angle: {round(angle, 1) % 360}°', True, WHITE)
+
             screen.blit(txt, (0.016 * WIDTH, 0.04 * HEIGHT))
         elif joueur_actuel == 1:
             txt = big_font.render(f'Vitesse: {round(vx, 2)} | Angle: {round(angle2 - 180, 1) % 360}°', True, WHITE)
             screen.blit(txt, (0.795 * WIDTH, 0.04 * HEIGHT))
+
         if joueur_actuel == 0:
             if show_preview and preview_enabled:
                 trajectory = simulate_trajectory(x, y, angle, vx)
@@ -518,7 +521,9 @@ def jeu ():
                     pygame.draw.circle(screen, WHITE, point, 2)
 
         txt2 = big_font.render(f'{score1} | {score2}', True, WHITE)
+
         screen.blit(txt2, (0.4 * WIDTH, 0.04 * HEIGHT))
+
         # Mettre à jour l'affichage
         pygame.display.flip()
         clock.tick(60)
