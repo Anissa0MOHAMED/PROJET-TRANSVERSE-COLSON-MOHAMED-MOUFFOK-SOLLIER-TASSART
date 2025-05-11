@@ -8,7 +8,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="423e6d16-7e3f-48c9-a0e1-0cbe939c5061" name="Changes" comment="commentaires">
-      <change beforePath="$PROJECT_DIR$/game.py" beforeDir="false" afterPath="$PROJECT_DIR$/game.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -22,12 +22,14 @@
     <option name="BRANCH" value="origin/AnissaM" />
   </component>
   <component name="Git.Settings">
+    <option name="PREVIEW_PUSH_PROTECTED_ONLY" value="true" />
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
         <entry key="$PROJECT_DIR$" value="main" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="UPDATE_TYPE" value="REBASE" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
   &quot;lastFilter&quot;: {
@@ -197,7 +199,31 @@
       <option name="project" value="LOCAL" />
       <updated>1747000853487</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="commentaires">
+      <option name="closed" value="true" />
+      <created>1747000967531</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1747000967531</updated>
+    </task>
+    <task id="LOCAL-00011" summary="commentaires">
+      <option name="closed" value="true" />
+      <created>1747001012637</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1747001012637</updated>
+    </task>
+    <task id="LOCAL-00012" summary="commentaires">
+      <option name="closed" value="true" />
+      <created>1747001181933</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1747001181933</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -243,6 +269,6 @@
     <SUITE FILE_PATH="coverage/PROJET_TRANSVERSE_COLSON_MOHAMED_MOUFFOK_SOLLIER_TASSART$test1.coverage" NAME="test1 Coverage Results" MODIFIED="1744027189372" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/PROJET_TRANSVERSE_COLSON_MOHAMED_MOUFFOK_SOLLIER_TASSART$test888.coverage" NAME="test888 Coverage Results" MODIFIED="1746992339403" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/PROJET_TRANSVERSE_COLSON_MOHAMED_MOUFFOK_SOLLIER_TASSART$test2.coverage" NAME="test2 Coverage Results" MODIFIED="1746932060406" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/PROJET_TRANSVERSE_COLSON_MOHAMED_MOUFFOK_SOLLIER_TASSART$game.coverage" NAME="game Coverage Results" MODIFIED="1747000921597" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/PROJET_TRANSVERSE_COLSON_MOHAMED_MOUFFOK_SOLLIER_TASSART$game.coverage" NAME="game Coverage Results" MODIFIED="1747001129130" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>
